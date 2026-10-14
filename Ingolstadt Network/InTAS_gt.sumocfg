@@ -1,0 +1,26 @@
+<!--
+	Ingolstadt Traffic Scenario for SUMO (InTAS)
+	Author: Silas Lobo
+
+	This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+   	the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+-->
+<configuration>
+	<input>
+		<net-file value="ingolstadt.net.xml"/>
+		<route-files value="InTAS_001.1h.rou.xml"/>
+		<additional-files value="additional_gt.xml"/>
+	</input>
+	<output>
+		<summary-output value="InTAS.summary.xml"/>
+		<tripinfo-output value="InTAS.tripinfo.xml"/>
+		<edgedata-output value="InTAS.travel_times.xml"/>
+	</output>
+	<time>
+		<begin value="3600"/>
+		<step-length value="0.1"/>
+		<end value="7200"/>
+	</time>
+</configuration>

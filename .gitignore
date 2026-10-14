@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+.ipynb_checkpoints/
+
+.env
+
+*.log
+
+*.tripinfo.xml
+*.summary.xml
+*.netstate.xml
+*.travel_times.xml
+*.travel_times_sim.xml
+
+.DS_Store
+Thumbs.db
+
+gt_data/
+gt_data/*
+Ingolstadt Network/gt_data/
+Ingolstadt Network/gt_data/*
