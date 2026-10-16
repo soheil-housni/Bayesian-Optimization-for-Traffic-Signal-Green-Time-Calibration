@@ -22,3 +22,15 @@ gt_data/
 gt_data/*
 Ingolstadt Network/gt_data/
 Ingolstadt Network/gt_data/*
+
+BO_output/
+BO_output/*
+
+initial_candidates/
+initial_candidates/*
+
+initial_samples/
+initial_samples/*
+
+best_x/
+best_x/*

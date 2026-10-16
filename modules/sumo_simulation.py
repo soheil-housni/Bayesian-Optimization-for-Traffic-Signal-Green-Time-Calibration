@@ -10,7 +10,7 @@ class SumoSimulation():
                  cfg_file,
                  output_dir,
                  tl_ids,
-                 gt=False):
+                 ):
         
         self.num_replications=num_replications
         self.cfg_file=cfg_file
