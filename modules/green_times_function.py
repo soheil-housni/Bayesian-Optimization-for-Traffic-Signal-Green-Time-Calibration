@@ -8,6 +8,8 @@ def update_green_times(g_vec,
 
     # update green time dictionary
     tl_df_updated,g_vec_all = update_green_time_df(g_vec,initial_tl_df)
+    print("G VEC ALL :")
+    print(g_vec_all)
     
     # update additional.xml     
     tree = ET.parse(additional_xml)

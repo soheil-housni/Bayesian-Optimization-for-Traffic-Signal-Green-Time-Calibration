@@ -34,3 +34,13 @@ initial_samples/*
 
 best_x/
 best_x/*
+
+initial_output/
+initial_output/*
+
+turbo_output/
+turbo_output/*
+turbo_initial_output/*
+turbo_initial_output/
+
+

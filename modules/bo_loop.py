@@ -12,6 +12,7 @@ from .feasibility_check import check_feasibility
 from .objective_function import ErrorFunction
 from .acquisition_function_optimization import optimize_acqf_and_get_observation
 from .ic_generator import raasp_ic_generator
+from botorch.generation.sampling import BoltzmannSampling
 
 class BOLoop():
     def __init__(self,
@@ -67,9 +68,11 @@ class BOLoop():
                 best_y=best_y.item()
                 best_y_index=best_y_index.item()
 
-                x_best=train_X_norm[best_y_index]
-
-                torch.save(x_best,f"./best_x/x_best_iter_{i}_restart_{rs}.pt")
+                top_df=df.copy()
+                n_obs=len(top_df)
+                top_df=top_df.nsmallest(int(np.ceil((5/100)*n_obs)),columns="loss_estimate")
+                top_x=torch.from_numpy(top_df[[f"gt_{i}" for i in range(self.x_dim)]].values)
+                top_x_norm=normalize(top_x,self.bounds)
 
                 best_value.append(best_y)
 
@@ -101,6 +104,7 @@ class BOLoop():
 
                     sampler = StochasticSampler(sample_shape=torch.Size([128]))
                     EI = LogExpectedImprovement(gp_model, best_f=best_y, maximize=True)
+                    botlzmann_sampler=BoltzmannSampling(acq_func=EI)
 
                     new_x = optimize_acqf_and_get_observation(acq_func=EI,
                                                             bounds=self.bounds,
@@ -109,11 +113,12 @@ class BOLoop():
                                                             dtype=self.dtype,
                                                             num_restarts_opti=self.num_restarts_opti,
                                                             raasp_sampler=self.RAASP_sampler,
-                                                            x_best=x_best,
+                                                            top_x=top_x_norm,
                                                             raw_samples=self.raw_samples,
                                                             i=i,
                                                             rs=rs,
-                                                            MSR=True
+                                                            MSR=True,
+                                                            botlzmann_sampler=botlzmann_sampler
                                                             )
 
             

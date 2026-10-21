@@ -23,5 +23,4 @@ def initialize_gp_model(train_X,train_Y,initial_length_scale_value=0.6931):
         outcome_transform=Standardize(m=1))
 
     gp_mll = ExactMarginalLogLikelihood(gp_model.likelihood, gp_model)
-    
     return gp_model, gp_mll

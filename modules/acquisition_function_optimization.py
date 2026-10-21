@@ -13,9 +13,10 @@ def optimize_acqf_and_get_observation(acq_func,
                                         MSR=False,
                                         raw_samples=None,
                                         raasp_sampler=None,
-                                        x_best=None,
+                                        top_x=None,
                                         i=None,
                                         rs=None,
+                                        botlzmann_sampler=None,
                                         num_restarts_opti=5):
         
         """Optimizes the acquisition function, and returns a new candidate."""
@@ -27,9 +28,10 @@ def optimize_acqf_and_get_observation(acq_func,
             custom_ic_generator = partial(
                                 raasp_ic_generator,
                                 raasp_sampler=raasp_sampler,
-                                x_best=x_best,
+                                top_x=top_x,
                                 i=i,
-                                rs=rs
+                                rs=rs,
+                                botlzmann_sampler=botlzmann_sampler
                             )
 
             # optimize

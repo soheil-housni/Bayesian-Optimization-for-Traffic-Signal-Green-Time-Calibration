@@ -2,6 +2,7 @@ import traci
 import xml.etree.ElementTree as ET
 import pandas as pd
 import numpy as np
+import traceback
 
 
 class SumoSimulation():
@@ -37,6 +38,11 @@ class SumoSimulation():
 
                 for i in range(3600):
                     traci.simulationStep()
+
+            except Exception as e:
+                print(f"Erreur SUMO/TraCI : {e}")
+                traceback.print_exc()
+
             finally:
                 traci.close()
 

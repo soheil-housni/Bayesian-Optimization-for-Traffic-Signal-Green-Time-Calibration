@@ -10,3 +10,6 @@ from .gp_initialization import initialize_gp_model
 from .bo_loop import BOLoop
 from .acquisition_function_optimization import optimize_acqf_and_get_observation
 from .RAASP_sampling import RAASP_sampler
+from .trust_regions_candidates_generation import TRCandidatesGeneration
+from .trust_regions_initialization import TrustRegionInitialization
+from .turbo_loop import TurboLoop
