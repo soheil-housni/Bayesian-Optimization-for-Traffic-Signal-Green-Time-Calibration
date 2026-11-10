@@ -18,26 +18,34 @@ class SumoSimulation():
         self.output_dir=output_dir
         self.tl_ids=tl_ids
 
-    def simulation(self,epoch_index):
+    def simulation(self,epoch_index,demand_scaling_factor=None):
         df_all=None
 
         for s1 in range(self.num_replications):
+            if demand_scaling_factor is not None:
+                command=[
+                        "sumo",
+                        "-c", f"./{self.cfg_file}",
+                        "--scale",f"{demand_scaling_factor}",
+                        "--verbose","--seed", f"{s1}",
+                        "--output-prefix", f"{self.output_dir}{epoch_index}_{s1}_"
+                        ]
+            else:
+                command=[
+                        "sumo",
+                        "-c", f"./{self.cfg_file}",
+                        "--verbose","--seed", f"{s1}",
+                        "--output-prefix", f"{self.output_dir}{epoch_index}_{s1}_"
+                        ]
             try:
-                traci.start([
-                            "sumo",
-                            "-c", f"./{self.cfg_file}",
-                            "--verbose","--seed", f"{s1}",
-                            "--output-prefix", f"{self.output_dir}{epoch_index}_{s1}_"
-                            ])
+                traci.start(command)
                 for tl in self.tl_ids:
                     traci.trafficlight.setProgram(tl, "1")
                     program = traci.trafficlight.getAllProgramLogics(tl)
                     program_used=traci.trafficlight.getProgram(tl)
-                    print(program)
-                    print(f"Program used : {program_used}")
 
-                for i in range(3600):
-                    traci.simulationStep()
+                
+                traci.simulationStep(61200)
 
             except Exception as e:
                 print(f"Erreur SUMO/TraCI : {e}")

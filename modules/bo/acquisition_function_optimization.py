@@ -2,7 +2,7 @@ from botorch.optim import optimize_acqf
 import torch
 from botorch.utils.transforms import unnormalize
 from functools import partial
-from .ic_generator import raasp_ic_generator
+from modules.msr import raasp_ic_generator
 
 
 def optimize_acqf_and_get_observation(acq_func,

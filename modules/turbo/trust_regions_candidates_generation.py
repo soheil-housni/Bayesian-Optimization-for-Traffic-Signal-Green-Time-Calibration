@@ -1,5 +1,6 @@
 import torch
 from torch.quasirandom import SobolEngine
+from botorch.utils.transforms import unnormalize,normalize
 
 class TRCandidatesGeneration():
 
@@ -18,7 +19,8 @@ class TRCandidatesGeneration():
                        tr_ub):
         
         sobol_sequence=self.sobol_engine.draw(self.sample_size)
-        sobol_sequence=tr_lb+(tr_ub-tr_lb)*sobol_sequence
+        #sobol_sequence=tr_lb+(tr_ub-tr_lb)*sobol_sequence
+        sobol_sequence=unnormalize(sobol_sequence,torch.stack([tr_lb,tr_ub],dim=0))
         mask=torch.rand_like(sobol_sequence)<=self.disturbance_probability
         ind=torch.where(mask.sum(dim=1)==0)[0]
         mask[ind,torch.randint(0,self.x_dim,size=(len(ind),))]=1

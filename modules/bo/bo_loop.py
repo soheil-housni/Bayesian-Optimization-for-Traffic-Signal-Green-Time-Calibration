@@ -8,17 +8,17 @@ from botorch.utils.transforms import unnormalize,normalize
 from .gp_initialization import initialize_gp_model
 from botorch import fit_gpytorch_mll
 from botorch.acquisition.analytic import LogExpectedImprovement
-from .feasibility_check import check_feasibility
-from .objective_function import ErrorFunction
+from modules.sumo import check_feasibility
+from modules.sumo import ErrorFunction
 from .acquisition_function_optimization import optimize_acqf_and_get_observation
-from .ic_generator import raasp_ic_generator
+from modules.msr import raasp_ic_generator
 from botorch.generation.sampling import BoltzmannSampling
 
 class BOLoop():
     def __init__(self,
                  niter,
                  num_restart,
-                 init_df_list,
+                 init_df,
                  output_dir,
                  bounds,
                  objective_function,
@@ -34,7 +34,7 @@ class BOLoop():
         
         self.niter=niter
         self.num_restart=num_restart
-        self.init_df_list=init_df_list
+        self.init_df=init_df
         self.output_dir=output_dir
         self.bounds=bounds
         self.objective_function=objective_function
@@ -50,13 +50,25 @@ class BOLoop():
 
     def run_loop(self,
                  version,
+                 annotation,
+                 demand_scaling_factor=None,
                  initial_length_scale_value=0.6931
                  ):
 
         for rs in range(self.num_restart):
             best_value = []
+            hyperparams_dict={
+                "raw_lengthscale":[],
+                "lengthscale":[],
+                "raw_amplitude":[],
+                "amplitude":[],
+                "noise":[],
+                "raw_noise":[],
+                "constant_mean":[]
+            }
+
             for i in range(self.niter):
-                df = self.init_df_list[rs] if i == 0 else df
+                df = self.init_df if i == 0 else df
                 n_obs = df.shape[0]
                 train_X= torch.from_numpy(df[[f"gt_{i}" for i in range(self.x_dim)]].values)
                 train_X_norm = normalize(train_X,self.bounds)
@@ -78,14 +90,32 @@ class BOLoop():
 
                 print(f"##### best_value={best_y} #####")
                 print(f"Shape of train_X_norm is {train_X_norm.shape}")
-                gp_model, gp_mll = initialize_gp_model(train_X_norm,train_Y,initial_length_scale_value=0.6931)
+                gp_model, gp_mll = initialize_gp_model(train_X=train_X_norm,train_Y=train_Y,initial_length_scale_value=initial_length_scale_value)
+                if i==0:
+                    hyperparams_dict["raw_lengthscale"].append(gp_model.covar_module.base_kernel.raw_lengthscale)
+                    hyperparams_dict["lengthscale"].append(gp_model.covar_module.base_kernel.lengthscale)
+                    hyperparams_dict["amplitude"].append(gp_model.covar_module.outputscale)
+                    hyperparams_dict["raw_amplitude"].append(gp_model.covar_module.raw_outputscale)
+                    hyperparams_dict["noise"].append(gp_model.likelihood.noise)
+                    hyperparams_dict["raw_noise"].append(gp_model.likelihood.noise_covar.raw_noise)
+                    hyperparams_dict["constant_mean"].append(gp_model.mean_module.constant)
                 try:
                     fit_gpytorch_mll(gp_mll)
+                    hyperparams_dict["raw_lengthscale"].append(gp_model.covar_module.base_kernel.raw_lengthscale)
+                    hyperparams_dict["lengthscale"].append(gp_model.covar_module.base_kernel.lengthscale)
+                    hyperparams_dict["amplitude"].append(gp_model.covar_module.outputscale)
+                    hyperparams_dict["raw_amplitude"].append(gp_model.covar_module.raw_outputscale)
+                    hyperparams_dict["noise"].append(gp_model.likelihood.noise)
+                    hyperparams_dict["raw_noise"].append(gp_model.likelihood.noise_covar.raw_noise)
+                    hyperparams_dict["constant_mean"].append(gp_model.mean_module.constant)
+
                 except:
                     print(f'***** CAREFUL ****** kernel was not able to fit GP based at epoch {i}, skipping this epoch. Keep in mind for final numerical analysis of results')
                     continue
 
-                epoch_index=f"BO_iter_{i}_restart_{rs}"
+                epoch_index=f"BO_iter_{i}_restart_{rs}_dsf{demand_scaling_factor}"
+
+
 
                 if version=="VANILLA":
 
@@ -139,9 +169,9 @@ class BOLoop():
                 
                 train_new_x=new_x.cpu().detach().numpy().reshape(-1)
 
-                new_obj = self.objective_function.compute_error(train_new_x,epoch_index=epoch_index)
+                new_obj = self.objective_function.compute_error(train_new_x,epoch_index=epoch_index,demand_scaling_factor=demand_scaling_factor)
 
-                new_row=pd.DataFrame(np.append(train_new_x,[new_obj,i+1]).reshape(1,-1),columns=[f"gt_{i}" for i in range(self.x_dim)]+["loss_estimate","iter"])
+                new_row=pd.DataFrame(np.append(train_new_x,[new_obj,i]).reshape(1,-1),columns=[f"gt_{i}" for i in range(self.x_dim)]+["loss_estimate","iter"])
             
                 df = pd.concat([df, new_row], axis=0, ignore_index=True)
             
@@ -152,7 +182,8 @@ class BOLoop():
             # if kernel_name == 'Matern_default_v1':
             #     df.to_csv(f'{OUTPUT_DIR}df_default_restart{rs}.csv', index=None)    
             # if kernel_name == 'custom_Matern_v2':
-            df.to_csv(f'{self.output_dir}BO_df_{version}_restart{rs}.csv', index=None)    
+            df.to_csv(f'{self.output_dir}BO_df_{version}_{annotation}_restart{rs}.csv', index=None)
+            torch.save(hyperparams_dict,f'{self.output_dir}hp_dict_{version}_{annotation}_restart{rs}.pt')  
         
 
             

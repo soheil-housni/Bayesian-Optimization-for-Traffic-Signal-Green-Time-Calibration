@@ -30,9 +30,10 @@ class TurboState():
         self.tr_df=tr_init_df
         self.tr_id=tr_id
 
-        self.failure_tolerance = math.ceil(
-                    max([4.0 / self.batch_size, float(self.dim) / self.batch_size])
-                )
+        #self.failure_tolerance = math.ceil(
+                    #max([4.0 / self.batch_size, float(self.dim) / self.batch_size])
+                #)
+        self.failure_tolerance=7
 
         self.best_value=float("-inf")
         self.tr_x_best_norm=None
@@ -40,8 +41,11 @@ class TurboState():
 
         self.restart_triggered=False
 
-        tr_ub=None
-        tr_lb=None
+        self.tr_ub=None
+        self.tr_lb=None
+
+        self.tr_gp_model=None
+
 
     def update_best_value(self,best_value):
         self.best_value=best_value
@@ -59,7 +63,7 @@ class TurboState():
             self.length = min(2.0 * self.length, self.length_max)
             self.success_counter = 0
         elif self.failure_counter == self.failure_tolerance:  # Shrink trust region
-            self.length /= 2.0
+            self.length = max(self.length/2.0,self.length_min)
             self.failure_counter = 0
 
         self.best_value = max(self.best_value, max(Y_next).item())

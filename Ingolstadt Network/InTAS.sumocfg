@@ -10,7 +10,7 @@
 <configuration>
 	<input>
 		<net-file value="ingolstadt.net.xml"/>
-		<route-files value="InTAS_001.1h.rou.xml"/>
+		<route-files value="InTAS_016.rou.xml, InTAS_017.rou.xml, InTAS_018.rou.xml"/>
 		<additional-files value="additional.xml"/>
 	</input>
 	<output>
@@ -19,8 +19,8 @@
 		<edgedata-output value="InTAS.travel_times.xml"/>
 	</output>
 	<time>
-		<begin value="3600"/>
-		<step-length value="0.1"/>
-		<end value="7200"/>
+		<begin value="57600"/>
+		<step-length value="1.0"/>
+		<end value="61200"/>
 	</time>
 </configuration>
