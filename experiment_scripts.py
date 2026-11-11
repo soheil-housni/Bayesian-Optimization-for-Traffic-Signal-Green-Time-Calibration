@@ -15,7 +15,7 @@ import argparse
 def generate_gt_dataset():
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="Ingolstadt Network/InTAS_gt.sumocfg"
     output_dir="gt_data/"
 
@@ -31,7 +31,7 @@ def generate_initial_samples():
 
     additional_xml_gt="./Ingolstadt Network/additional_gt.xml"
     initial_tl_df=create_initial_tl_df(additional_xml_gt)
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     output_dir_init="initial_output/"
     additional_xml="./Ingolstadt Network/additional.xml"
@@ -65,7 +65,7 @@ def generate_initial_samples():
         upper_bounds],
         dtype=dtype
     )
-    n_init_samples=3
+    n_init_samples=1
 
     init_X_norm_list=[]
     init_Y_list=[]
@@ -103,7 +103,7 @@ def run_vanilla_baseline():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -128,7 +128,7 @@ def run_vanilla_baseline():
         tl_ids=tl_ids
     )
 
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
 
         init_df=init_df_list[init_sample]
@@ -171,7 +171,7 @@ def run_vanilla_scaled():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -196,7 +196,7 @@ def run_vanilla_scaled():
         tl_ids=tl_ids
     )
 
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
 
         init_df=init_df_list[init_sample]
@@ -239,7 +239,7 @@ def run_vanilla_default():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -264,7 +264,7 @@ def run_vanilla_default():
         tl_ids=tl_ids
     )
 
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
         init_df=init_df_list[init_sample]
 
@@ -306,7 +306,7 @@ def run_msr():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -332,7 +332,7 @@ def run_msr():
         tl_ids=tl_ids
     )
 
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
         init_df=init_df_list[init_sample]
         BO_instance=BOLoop(niter=niter,
@@ -377,7 +377,7 @@ def run_turbo_baseline():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -406,7 +406,7 @@ def run_turbo_baseline():
 
     trust_region_initial_x_norm_list=torch.load("./initial_samples/init_X_norm.pt",weights_only=False)
     
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
 
         trust_region_initial_df_list=[trust_region_initial_df_list[init_sample]]
@@ -456,7 +456,7 @@ def run_turbo_default():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -485,7 +485,7 @@ def run_turbo_default():
 
     trust_region_initial_x_norm_list=torch.load("./initial_samples/init_X_norm.pt",weights_only=False)
     
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
 
         trust_region_initial_df_list=[trust_region_initial_df_list[init_sample]]
@@ -535,7 +535,7 @@ def run_turbo_scaled():
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=5
+    num_replications=3
     cfg_file="./Ingolstadt Network/InTAS.sumocfg"
     additional_xml="./Ingolstadt Network/additional.xml"
 
@@ -564,7 +564,7 @@ def run_turbo_scaled():
 
     trust_region_initial_x_norm_list=torch.load("./initial_samples/init_X_norm.pt",weights_only=False)
     
-    n_init_samples=3
+    n_init_samples=1
     for init_sample in range(n_init_samples):
 
         trust_region_initial_df_list=[trust_region_initial_df_list[init_sample]]
