@@ -1,6 +1,6 @@
 from scipy.stats.qmc import LatinHypercube
 import torch
-from .initial_samples import InitialSamples
+from modules.bo import InitialSamples
 
 
 class TrustRegionInitialization():
