@@ -1,5 +1,5 @@
 <additional>
-    <edgeData id="edge_probe" file="InTAS.travel_times_sim.xml" freq="3600" begin="3600" end="7200" />
+    <edgeData id="edge_probe" file="InTAS.travel_times_sim.xml" freq="3600" begin="57600" end="61200" />
     <tlLogic id="1863241632" type="actuated" programID="1" offset="0">
         <phase duration="35" state="rrGGGGg" minDur="7" maxDur="50"/>
         <phase duration="5"  state="rryyyyg"/>
