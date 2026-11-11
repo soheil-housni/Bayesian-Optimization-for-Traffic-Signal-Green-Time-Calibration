@@ -17,6 +17,8 @@ export SUMO_HOME="$HOME/sumo_install/sumo"
 export PATH="$SUMO_HOME/bin:$PATH"
 export PYTHONPATH="$SUMO_HOME/tools:$PYTHONPATH"
 
+export LD_PRELOAD="/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/libatomic.so.1"
+
 echo "Python : $(which python)"
 python --version
 
