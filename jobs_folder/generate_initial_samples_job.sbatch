@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=generate_gt_dataset
+#SBATCH --job-name=generate_initial_samples
 #SBATCH --time=10:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=4
