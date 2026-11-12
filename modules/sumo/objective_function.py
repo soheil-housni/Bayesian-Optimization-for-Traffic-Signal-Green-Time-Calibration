@@ -10,7 +10,7 @@ class ErrorFunction():
                  sumo_simulator,
                  df_gt,
                  additional_xml,
-                 tl_ids
+                 tl_ids,
                  ):
         
         self.initial_tl_df=initial_tl_df
@@ -20,11 +20,16 @@ class ErrorFunction():
         self.additional_xml=additional_xml
         self.tl_ids=tl_ids
 
-    def compute_error(self,g_vec,epoch_index,demand_scaling_factor=None):
+    def compute_error(self,g_vec,epoch_index,num_replications,demand_scaling_factor=None):
         update_green_times(g_vec,self.additional_xml,self.tl_ids,self.initial_tl_df)
         shutil.copy(self.additional_xml, f'{self.output_dir}{epoch_index}_copy_additional.xml')
-        self.sumo_simulator.simulation(epoch_index=epoch_index,demand_scaling_factor=demand_scaling_factor)
-        df_sim=pd.read_csv(f"{self.output_dir}{epoch_index}_InTAS.travel_times.csv")
-        merged_df=pd.merge(df_sim[["edge_id","traveltime_mean"]],self.df_gt[["edge_id","traveltime_mean"]],how="inner",on="edge_id",suffixes=["_sim","_gt"])
-        mse=np.square(merged_df["traveltime_mean_sim"]-merged_df["traveltime_mean_gt"]).mean()
-        return mse
+        gt_edge_ids_set=self.df_gt["edge_id"].unique()
+        mse_list=[]
+        for rep in range(num_replications):
+            self.sumo_simulator.simulation(epoch_index=epoch_index,rep=rep,demand_scaling_factor=demand_scaling_factor)
+            df_sim=pd.read_csv(f"{self.output_dir}{epoch_index}_{rep}_InTAS.travel_times.csv")
+            df_sim=df_sim.loc[df_sim["edge_id"].isin(gt_edge_ids_set)]
+            merged_df=pd.merge(df_sim[["edge_id","traveltime"]],self.df_gt[["edge_id","traveltime_mean"]],how="inner",on="edge_id",suffixes=["_sim","_gt"])
+            mse=np.square(merged_df["traveltime_sim"]-merged_df["traveltime_mean_gt"]).mean()
+            mse_list.append(mse)
+        return np.mean(mse_list)

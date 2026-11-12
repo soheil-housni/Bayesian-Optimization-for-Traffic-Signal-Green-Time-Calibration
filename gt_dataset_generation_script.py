@@ -10,18 +10,18 @@ import sympy as sp
 from torch.quasirandom import SobolEngine
 from modules.turbo import CustomThompsonSampler,tr_gp_fit,TurboLoop,TrustRegionInitialization,TRCandidatesGeneration
 import argparse
-
+from modules.sumo import create_gt_dataset
 
 def generate_gt_dataset():
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=3
+    num_replications=10
     cfg_file="Ingolstadt Network/InTAS_gt.sumocfg"
     output_dir="gt_data/"
 
     gt_sumo_simulator=SumoSimulation(num_replications,cfg_file,output_dir,tl_ids)
     epoch_index="gt"
-    gt_sumo_simulator.simulation(epoch_index)
+    create_gt_dataset(output_dir=output_dir,epoch_index=epoch_index,sumo_simulator=gt_sumo_simulator,num_replications=num_replications)
 
 
 
