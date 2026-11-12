@@ -61,3 +61,22 @@ Ingolstadt Network/initial_output/*
 
 logs/
 logs/*
+
+*.travel_times.csv
+initial_output/*
+initial_samples/*
+initial_output/
+initial_samples/
+*.sumocfg
+*additional*
+turbo_output/*
+turbo_output/
+turbo_initial_output/*
+turbo_initial_output/
+turbo_initial_samples/*
+turbo_initial_samples/
+!additional_gt.xml
+!additional.xml
+!InTAS_gt.sumocfg
+!InTAS.sumocfg
+
