@@ -19,7 +19,7 @@ def generate_gt_dataset():
     cfg_file="Ingolstadt Network/InTAS_gt.sumocfg"
     output_dir="gt_data/"
 
-    gt_sumo_simulator=SumoSimulation(num_replications,cfg_file,output_dir,tl_ids)
+    gt_sumo_simulator=SumoSimulation(cfg_file=cfg_file,output_dir=output_dir,tl_ids=tl_ids)
     epoch_index="gt"
     create_gt_dataset(output_dir=output_dir,epoch_index=epoch_index,sumo_simulator=gt_sumo_simulator,num_replications=num_replications)
 
