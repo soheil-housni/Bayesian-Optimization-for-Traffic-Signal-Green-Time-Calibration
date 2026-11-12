@@ -26,4 +26,4 @@ echo "SUMO : $(which sumo)"
 sumo --version
 
 
-python -u experiment_scripts.py --method generate_gt_dataset
+python -u gt_dataset_generation_script.py

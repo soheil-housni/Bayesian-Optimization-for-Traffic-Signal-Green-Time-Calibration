@@ -6,10 +6,11 @@ from botorch.utils.sampling import sample_hypersphere
 class RAASP_sampler():
     def __init__(
             self,
-            x_dim
+            x_dim,
+            seed=None
     ):
         self.x_dim=x_dim
-        self.sobol_engine=SobolEngine(self.x_dim,scramble=True)
+        self.sobol_engine=SobolEngine(self.x_dim,seed=seed,scramble=True)
         self.disturbance_prob=min(1,20/x_dim)
 
     def RAASP_generator(self,

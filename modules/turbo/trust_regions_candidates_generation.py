@@ -6,11 +6,12 @@ class TRCandidatesGeneration():
 
     def __init__(self,
                  x_dim,
+                 seed=None
                  ):
         
         self.x_dim=x_dim
         self.sample_size=min(100*x_dim,5000)
-        self.sobol_engine=SobolEngine(self.x_dim,scramble=True)
+        self.sobol_engine=SobolEngine(self.x_dim,scramble=True,seed=seed)
         self.disturbance_probability=min(1,20/self.x_dim)
 
     def RAASP_sampling(self,

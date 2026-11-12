@@ -17,8 +17,8 @@ class InitialSamples():
         self.initial_tl_df=initial_tl_df
         self.objective_function=objective_function
 
-    def get_initial_sample(self,sample_size, x_dim, x_bounds,demand_scaling_factor=None):
-        init_X=self.get_x_sample(sample_size, x_dim, x_bounds)
+    def get_initial_sample(self,sample_size, x_dim, x_bounds,seed,demand_scaling_factor=None):
+        init_X=self.get_x_sample(sample_size=sample_size, x_dim=x_dim, x_bounds=x_bounds,seed=seed)
         init_X_norm, init_Y, init_df=self.get_objective(init_X=init_X,sample_size=sample_size, x_bounds=x_bounds,demand_scaling_factor=demand_scaling_factor)
         return init_X_norm, init_Y, init_df
 
@@ -56,10 +56,10 @@ class InitialSamples():
 
 
 
-    def get_x_sample(self,sample_size, x_dim, x_bounds):
+    def get_x_sample(self,sample_size, x_dim, x_bounds,seed):
 
         init_X=[]
-        sobol = SobolEngine(x_dim, scramble=True)
+        sobol = SobolEngine(x_dim, scramble=True,seed=seed)
         for n_1 in range(sample_size):
             feasibility_bool = False
             while not feasibility_bool:

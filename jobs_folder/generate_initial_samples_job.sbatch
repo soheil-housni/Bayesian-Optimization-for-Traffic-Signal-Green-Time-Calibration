@@ -4,8 +4,9 @@
 #SBATCH --time=10:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=4
-#SBATCH --output=logs/%x-%j.out
-#SBATCH --error=logs/%x-%j.err
+#SBATCH --array=0-2%3
+#SBATCH --output=logs/%x_%A_%a.out
+#SBATCH --error=logs/%x_%A_%a.err
 
 cd "$SLURM_SUBMIT_DIR"
 
@@ -26,4 +27,4 @@ echo "SUMO : $(which sumo)"
 sumo --version
 
 
-python -u experiment_scripts.py --method generate_initial_samples
+python -u initial_samples_generation_script.py --id_init_sample $SLURM_ARRAY_TASK_ID

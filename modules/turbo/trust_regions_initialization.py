@@ -9,7 +9,6 @@ class TrustRegionInitialization():
                   ):
           
           self.initial_sampler=initial_sampler
-          print(self.initial_sampler.objective_function.sumo_simulator.cfg_file)
 
     def initialize_trust_regions(self,
                                  sample_size,
