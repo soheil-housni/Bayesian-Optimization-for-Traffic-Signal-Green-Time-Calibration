@@ -67,7 +67,8 @@ class BOLoop():
             "constant_mean":[]
         }
 
-        self.RAASP_sampler.seed=rs
+        if self.RAASP_sampler:
+            self.RAASP_sampler.seed=rs
 
         for i in range(self.niter):
             df = self.init_df if i == 0 else df
