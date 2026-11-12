@@ -17,18 +17,18 @@ class InitialSamples():
         self.initial_tl_df=initial_tl_df
         self.objective_function=objective_function
 
-    def get_initial_sample(self,sample_size, x_dim, x_bounds,seed,demand_scaling_factor=None):
+    def get_initial_sample(self,sample_size, x_dim, x_bounds,seed,id_init_sample,demand_scaling_factor=None):
         init_X=self.get_x_sample(sample_size=sample_size, x_dim=x_dim, x_bounds=x_bounds,seed=seed)
-        init_X_norm, init_Y, init_df=self.get_objective(init_X=init_X,sample_size=sample_size, x_bounds=x_bounds,demand_scaling_factor=demand_scaling_factor)
+        init_X_norm, init_Y, init_df=self.get_objective(init_X=init_X,sample_size=sample_size, x_bounds=x_bounds,id_init_sample=id_init_sample,demand_scaling_factor=demand_scaling_factor)
         return init_X_norm, init_Y, init_df
 
 
-    def get_objective(self,init_X,sample_size, x_bounds,demand_scaling_factor=None):
+    def get_objective(self,init_X,sample_size, x_bounds,id_init_sample,demand_scaling_factor=None):
             
         init_objective_values = []
         for n1 in range(sample_size):
             print(f"Sample number {n1}")
-            epoch_index = f'0{n1}_initial_sample'
+            epoch_index = f'0{n1}_initial_sample_{id_init_sample}'
             print(epoch_index)
             x = init_X.cpu().detach().numpy()[n1]
             objective_value=self.objective_function.compute_error(g_vec=x,epoch_index=epoch_index,demand_scaling_factor=demand_scaling_factor)

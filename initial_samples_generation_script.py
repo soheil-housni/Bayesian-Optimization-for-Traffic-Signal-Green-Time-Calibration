@@ -115,7 +115,7 @@ def generate_initial_samples(id_init_sample):
     )
 
     
-    init_X_norm, init_Y, init_df=initial_sampler.get_initial_sample(sample_size=sample_size,x_dim=x_dim,x_bounds=x_bounds,seed=id_init_sample)
+    init_X_norm, init_Y, init_df=initial_sampler.get_initial_sample(sample_size=sample_size,x_dim=x_dim,x_bounds=x_bounds,id_init_sample=id_init_sample,seed=id_init_sample)
 
 
     torch.save(init_X_norm,f"./initial_samples/init_X_norm_{id_init_sample}.pt")

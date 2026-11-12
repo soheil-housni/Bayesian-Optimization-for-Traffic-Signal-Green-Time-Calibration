@@ -115,7 +115,7 @@ class BOLoop():
                 print(f'***** CAREFUL ****** kernel was not able to fit GP based at epoch {i}, skipping this epoch. Keep in mind for final numerical analysis of results')
                 continue
 
-            epoch_index=f"BO_iter_{i}_restart_{rs}_dsf{demand_scaling_factor}"
+            epoch_index=f"BO_iter_{i}_{version}_{annotation}_restart{rs}"
 
 
 

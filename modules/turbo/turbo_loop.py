@@ -168,7 +168,7 @@ class TurboLoop():
                 unnorm_selected_candidate=unnormalize(selected_candidate,bounds=self.bounds)
                 y_value=self.objective_function.compute_error(
                     unnorm_selected_candidate.detach().cpu().numpy(),
-                    epoch_index=f"b{b}_tr{selected_tr}_i{i}_rs{rs}_dsf{demand_scaling_factor}",
+                    epoch_index=f"b{b}_tr{selected_tr}_i{i}_{annotation}_rs{rs}",
                     demand_scaling_factor=demand_scaling_factor
                 )
                 batch_obj_value_across_tr.append(-y_value)
