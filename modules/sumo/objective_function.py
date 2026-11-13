@@ -31,7 +31,7 @@ class ErrorFunction():
             df_sim=pd.read_csv(f"{self.output_dir}{epoch_index}_{rep}_InTAS.travel_times.csv")
             df_sim=df_sim.loc[df_sim["edge_id"].isin(gt_edge_ids_set)]
             df_sim=df_sim.rename(columns={"traveltime":"traveltime_sim"})
-            merged_df=pd.merge(df_sim[["edge_id","traveltime"]],self.df_gt[["edge_id","traveltime_mean"]],how="inner",on="edge_id",suffixes=["_sim","_gt"])
+            merged_df=pd.merge(df_sim[["edge_id","traveltime_sim"]],self.df_gt[["edge_id","traveltime_mean_gt"]],how="inner",on="edge_id",suffixes=["_sim","_gt"])
             mse=np.square(merged_df["traveltime_sim"]-merged_df["traveltime_mean_gt"]).mean()
             mse_list.append(mse)
         return np.mean(mse_list)
