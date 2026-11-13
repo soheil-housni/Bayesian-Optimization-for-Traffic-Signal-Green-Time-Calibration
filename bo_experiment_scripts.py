@@ -24,7 +24,6 @@ def set_seed(seed):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
 
-    # Pour favoriser la reproductibilité
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
@@ -96,7 +95,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=3
+    num_replications=5
 
     cfg_file, additional_xml = prepare_sumo_files(method=method,annotation=annotation,rs=rs)
 
@@ -106,8 +105,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
     device=(torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))
 
 
-    sumo_simulator=SumoSimulation(num_replications=num_replications,
-                                    cfg_file=cfg_file,
+    sumo_simulator=SumoSimulation(cfg_file=cfg_file,
                                     output_dir=output_dir,
                                     tl_ids=tl_ids,
                                     )
@@ -181,7 +179,7 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
 
     raasp_sampler=RAASP_sampler(x_dim=x_dim,seed=rs)
 
-    sumo_simulator=SumoSimulation(num_replications=num_replications,
+    sumo_simulator=SumoSimulation(
                                     cfg_file=cfg_file,
                                     output_dir=output_dir,
                                     tl_ids=tl_ids,
@@ -252,7 +250,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
 
     batch_size=1
 
-    sumo_simulator=SumoSimulation(num_replications=num_replications,
+    sumo_simulator=SumoSimulation(
                                     cfg_file=cfg_file,
                                     output_dir=output_dir,
                                     tl_ids=tl_ids,
