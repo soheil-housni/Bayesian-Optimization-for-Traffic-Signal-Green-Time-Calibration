@@ -79,13 +79,13 @@ def generate_initial_samples(id_init_sample):
 
     additional_xml_gt="./Ingolstadt Network/additional_gt.xml"
     initial_tl_df=create_initial_tl_df(additional_xml_gt)
-    num_replications=3
+    num_replications=5
     output_dir_init="initial_output/"
     dtype=torch.double
 
     cfg_file, additional_xml = prepare_sumo_files(id_init_sample)
 
-    init_sumo_simulator=SumoSimulation(num_replications=num_replications,
+    init_sumo_simulator=SumoSimulation(
                                     cfg_file=cfg_file,
                                     output_dir=output_dir_init,
                                     tl_ids=tl_ids,
@@ -115,7 +115,7 @@ def generate_initial_samples(id_init_sample):
     )
 
     
-    init_X_norm, init_Y, init_df=initial_sampler.get_initial_sample(sample_size=sample_size,x_dim=x_dim,x_bounds=x_bounds,id_init_sample=id_init_sample,seed=id_init_sample)
+    init_X_norm, init_Y, init_df=initial_sampler.get_initial_sample(sample_size=sample_size,x_dim=x_dim,x_bounds=x_bounds,id_init_sample=id_init_sample,seed=id_init_sample,num_replications=num_replications)
 
 
     torch.save(init_X_norm,f"./initial_samples/init_X_norm_{id_init_sample}.pt")

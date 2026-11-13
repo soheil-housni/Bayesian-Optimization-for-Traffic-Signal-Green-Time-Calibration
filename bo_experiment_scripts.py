@@ -42,7 +42,6 @@ def prepare_sumo_files(method,annotation,rs):
         network_dir, "InTAS.sumocfg"
     )
 
-    # Fichiers propres à cet initial sample
     additional_xml = os.path.join(
         network_dir, f"additional_{method}_{annotation}_rs{rs}.xml"
     )
@@ -51,11 +50,9 @@ def prepare_sumo_files(method,annotation,rs):
         network_dir, f"InTAS_{method}_{annotation}_rs{rs}.sumocfg"
     )
 
-    # Copier les fichiers originaux
     shutil.copy2(original_additional, additional_xml)
     shutil.copy2(original_config, cfg_file)
 
-    # Modifier la configuration pour référencer le XML spécifique
     tree = etree.parse(cfg_file)
 
     additional_files = tree.find(".//additional-files")
@@ -140,7 +137,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
                     )
 
 
-    BO_instance.run_loop(version="VANILLA",initial_length_scale_value=initial_length_scale_value,rs=rs,annotation=annotation)
+    BO_instance.run_loop(version="VANILLA",initial_length_scale_value=initial_length_scale_value,rs=rs,annotation=annotation,num_replications=num_replications)
 
 
 
@@ -167,7 +164,7 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=3
+    num_replications=5
 
     if scaled:
             annotation=f"ls_{initial_length_scale_value}scaled_is{id_init_sample}"
@@ -214,7 +211,7 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
                     batch_size=batch_size,
                     initial_tl_df=initial_tl_df,
                     RAASP_sampler=raasp_sampler)
-    BO_instance.run_loop(version="MSR",initial_length_scale_value=initial_length_scale_value*np.sqrt(x_dim),rs=rs,annotation=annotation)
+    BO_instance.run_loop(version="MSR",initial_length_scale_value=initial_length_scale_value*np.sqrt(x_dim),rs=rs,annotation=annotation,num_replications=num_replications)
 
 def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     set_seed(rs)
@@ -243,7 +240,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=3
+    num_replications=5
 
     if scaled:
         annotation=f"ls_{initial_length_scale_value}scaled_is{id_init_sample}"
@@ -299,7 +296,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     )
 
 
-    torbo_bo_launcher.turbo_loop(initial_length_scale_value=initial_length_scale_value,rs=rs,annotation=annotation)
+    torbo_bo_launcher.turbo_loop(initial_length_scale_value=initial_length_scale_value,rs=rs,annotation=annotation,num_replications=num_replications)
 
 
 

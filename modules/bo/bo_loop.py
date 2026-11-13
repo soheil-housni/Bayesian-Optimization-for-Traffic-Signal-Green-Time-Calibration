@@ -162,8 +162,8 @@ class BOLoop():
             if not check_feasibility(new_x.cpu().detach().numpy().reshape(-1),initial_tl_df=self.initial_tl_df):
                 print('*** BO optimal point is not feasible, replacing w/ a randomly sampled point')
                 is_feasible = False
+                sobol = SobolEngine(self.x_dim, scramble=True,seed=rs)
                 while not is_feasible:
-                    sobol = SobolEngine(self.x_dim, scramble=True,seed=rs)
                     x1 = sobol.draw(1).to(dtype=self.dtype)
                     new_x = unnormalize(x1, self.bounds)
                     if check_feasibility(new_x.cpu().detach().numpy().reshape(-1)):

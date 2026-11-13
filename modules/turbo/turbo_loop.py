@@ -53,6 +53,7 @@ class TurboLoop():
     def turbo_loop(self,
                    annotation,
                    rs,
+                   num_replications,
                    demand_scaling_factor=None,
                    initial_length_scale_value=0.6931):
 
@@ -169,7 +170,8 @@ class TurboLoop():
                 y_value=self.objective_function.compute_error(
                     unnorm_selected_candidate.detach().cpu().numpy(),
                     epoch_index=f"b{b}_tr{selected_tr}_i{i}_{annotation}_rs{rs}",
-                    demand_scaling_factor=demand_scaling_factor
+                    demand_scaling_factor=demand_scaling_factor,
+                    num_replications=num_replications
                 )
                 batch_obj_value_across_tr.append(-y_value)
 
