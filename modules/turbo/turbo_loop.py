@@ -94,7 +94,7 @@ class TurboLoop():
                 "batch_size":tr_state.batch_size
             }
 
-            torch.save(state_dict,f"{self.output_dir}tr_{tr_id}_i_-1_{annotation}_rs_{rs}_tr_state_dict.pt")
+            torch.save(state_dict,f"./turbo_states_logs/tr_{tr_id}_i_-1_{annotation}_rs_{rs}_tr_state_dict.pt")
 
         for i in range(self.niter):
             batch_candidates_across_tr=[]
@@ -232,7 +232,7 @@ class TurboLoop():
                             "constant_mean":tr_state.tr_gp_model.mean_module.constant
                             }
 
-                torch.save(state_dict,f"{self.output_dir}tr_{tr_id}_i_{i}_{annotation}_rs_{rs}_tr_state_dict.pt")
+                torch.save(state_dict,f"./turbo_states_logs/tr_{tr_id}_i_{i}_{annotation}_rs_{rs}_tr_state_dict.pt")
 
         for n in range(len(self.TR_turbo_states)):
             tr_state=self.TR_turbo_states[n]

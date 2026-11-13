@@ -52,6 +52,7 @@ class BOLoop():
                  version,
                  annotation,
                  rs,
+                 num_replications,
                  demand_scaling_factor=None,
                  initial_length_scale_value=0.6931
                  ):
@@ -122,7 +123,6 @@ class BOLoop():
 
             if version=="VANILLA":
 
-                sampler = StochasticSampler(sample_shape=torch.Size([128]))
                 EI = LogExpectedImprovement(gp_model, best_f=best_y, maximize=True)
                 new_x = optimize_acqf_and_get_observation(acq_func=EI,
                                                         bounds=self.bounds,
@@ -135,7 +135,6 @@ class BOLoop():
 
             elif version=="MSR":
 
-                sampler = StochasticSampler(sample_shape=torch.Size([128]))
                 EI = LogExpectedImprovement(gp_model, best_f=best_y, maximize=True)
                 botlzmann_sampler=BoltzmannSampling(acq_func=EI)
 
@@ -172,7 +171,7 @@ class BOLoop():
             
             train_new_x=new_x.cpu().detach().numpy().reshape(-1)
 
-            new_obj = self.objective_function.compute_error(train_new_x,epoch_index=epoch_index,demand_scaling_factor=demand_scaling_factor)
+            new_obj = self.objective_function.compute_error(train_new_x,epoch_index=epoch_index,num_replications=num_replications,demand_scaling_factor=demand_scaling_factor)
 
             new_row=pd.DataFrame(np.append(train_new_x,[new_obj,i]).reshape(1,-1),columns=[f"gt_{i}" for i in range(self.x_dim)]+["loss_estimate","iter"])
         
@@ -186,7 +185,7 @@ class BOLoop():
         #     df.to_csv(f'{OUTPUT_DIR}df_default_restart{rs}.csv', index=None)    
         # if kernel_name == 'custom_Matern_v2':
         df.to_csv(f'{self.output_dir}BO_df_{version}_{annotation}_restart{rs}.csv', index=None)
-        torch.save(hyperparams_dict,f'{self.output_dir}hp_dict_{version}_{annotation}_restart{rs}.pt')  
+        torch.save(hyperparams_dict,f'./hp_logs/hp_dict_{version}_{annotation}_restart{rs}.pt')  
     
 
         
