@@ -34,7 +34,8 @@ class SumoSimulation():
                     "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_"
                     ]
         try:
-            traci.start(command)
+            traci.start(command, numRetries=300)
+            connection_started = True
             for tl in self.tl_ids:
                 traci.trafficlight.setProgram(tl, "1")
                 program = traci.trafficlight.getAllProgramLogics(tl)
@@ -46,9 +47,16 @@ class SumoSimulation():
         except Exception as e:
             print(f"Erreur SUMO/TraCI : {e}")
             traceback.print_exc()
+            raise
 
         finally:
-            traci.close()
+            if connection_started:
+                try:
+                    traci.close()
+                    print("TraCI connection closed.", flush=True)
+                except Exception as e:
+                    print(f"Error while closing TraCI: {e}", flush=True)
+                    raise
 
         df_sim=pd.read_xml(f"./Ingolstadt Network/{self.output_dir}{epoch_index}_{rep}_InTAS.travel_times.xml",iterparse={"edge":["id","sampledSeconds","traveltime",\
                                                                                                                    "density","occupancy","speed","waitingTime",\
