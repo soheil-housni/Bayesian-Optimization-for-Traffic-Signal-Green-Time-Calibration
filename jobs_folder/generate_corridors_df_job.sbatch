@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=generate_gt_dataset
+#SBATCH --job-name=generate_corridors_df
 #SBATCH --time=010:00:00
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=4

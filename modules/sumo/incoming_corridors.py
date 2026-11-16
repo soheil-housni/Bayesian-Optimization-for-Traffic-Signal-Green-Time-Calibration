@@ -2,6 +2,7 @@
 import sumolib
 import pandas as pd
 import numpy as np
+from .corridors_extraction import CorridorExtractor
 
 class TLIncomingCorridors():
 
@@ -10,7 +11,9 @@ class TLIncomingCorridors():
                  route_files_list,
                  ):
 
-        self.net = sumolib.net.readNet(net_file)
+        self.net = sumolib.net.readNet(net_file,withInternal=False)
+
+        self.corridors_extractor = CorridorExtractor(self.net)
 
         self.routes_df=None
         for route_file in route_files_list:
@@ -21,9 +24,12 @@ class TLIncomingCorridors():
                 self.routes_df=pd.concat([self.routes_df,sub_routes_df],axis=0)
 
     def get_corridors_df(self):
+        print(self.routes_df.shape)
         corridors_df=self.creation_tl_corridors_dataframe()
+        print("CORRIDORS DF GENERATED")
         
         routes_demand_df=self.extract_route_demand(corridors_df)
+        print("ROUTES DEMAND EXTRACTED")
         corridors_df=pd.merge(corridors_df,routes_demand_df,how="left",on="route_str")
         tl_demand=corridors_df.drop_duplicates(["tl","route_str"]).groupby("tl").agg({"route_demand":"sum"}).reset_index().rename(columns={"route_demand":"tl_demand"})
         corridors_df=pd.merge(corridors_df,tl_demand,how="left",on="tl")
@@ -207,7 +213,8 @@ class TLIncomingCorridors():
 
     def creation_tl_corridors_dataframe(self):
 
-        tl_corridors=self.tl_corridors_extraction()
+        tl_corridors = self.corridors_extractor.tl_corridors_extraction()
+        print("CORRIDORS EXTRACTED")
 
         all_routes=[]
         all_tls=[]
@@ -288,6 +295,8 @@ class TLIncomingCorridors():
     def creation_starting_edges(self):
         starting_edges=[]
         for edge in self.net.getEdges():
+            if edge.getID().startswith(":"):
+                continue
             from_node=edge.getFromNode()
             from_node_type=from_node.getType()
             if (from_node_type == "traffic_light") or (from_node_type == "dead_end"):
