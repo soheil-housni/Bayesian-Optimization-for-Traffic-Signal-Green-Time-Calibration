@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from .green_times_function import update_green_times
 import shutil
+from .vehroute_df_preprocessing import create_vehroute_df
+
 
 class ErrorFunction():
     def __init__(self,
@@ -35,3 +37,64 @@ class ErrorFunction():
             mse=np.square(merged_df["traveltime_sim"]-merged_df["traveltime_mean_gt"]).mean()
             mse_list.append(mse)
         return np.mean(mse_list)
+
+
+
+
+
+class ErrorFunctionConnexionVersion():
+    def __init__(self,
+                 scaling_factor_loss_fn,
+                 df_gt,
+                 sumo_simulator,
+                 complete_corridors_connexions_df,
+                 additional_xml,
+                 output_dir,
+                 tl_ids):
+        
+        self.scaling_factor_loss_fn=scaling_factor_loss_fn
+        self.sumo_simulator=sumo_simulator
+        self.additional_xml=additional_xml
+        self.output_dir=output_dir
+        self.tl_ids=tl_ids
+
+
+        self.complete_corridors_connexions_df=complete_corridors_connexions_df.sort_values(by="connexion_id")
+        self.df_gt=df_gt=df_gt.sort_values(by="connexion_id")
+        
+
+
+    def compute_error(self,
+                      g_vec,
+                      epoch_index,
+                      num_replications,
+                      travel_time=False,
+                      demand_scaling_factor=None):
+
+        update_green_times(g_vec=g_vec,additional_xml=self.additional_xml,tl_ids_set=self.tl_ids)
+        shutil.copy(self.additional_xml, f'{self.output_dir}{epoch_index}_copy_additional.xml')
+        mse_list=[]
+        tt_list=[]
+
+        for rep in range(num_replications):
+
+            self.sumo_simulator.simulation(epoch_index=epoch_index, rep=rep,demand_scaling_factor=demand_scaling_factor)
+            vehroute_df=create_vehroute_df(f"ingolstadt7/{self.output_dir}{epoch_index}_{rep}_InTAS7DIM.vehroute.xml")
+            complete_corridors_connexions_df_sim=self.complete_corridors_connexions_df.copy()
+            complete_corridors_connexions_df_sim["route_connexion_average_traveltime"]=complete_corridors_connexions_df_sim.apply(get_route_connexion_average_traveltime,args=(vehroute_df,),axis=1)
+            merged_df=pd.merge(self.df_gt[["connexion_id","route_connexion_average_traveltime"]],complete_corridors_connexions_df_sim[["connexion_id","route_connexion_average_traveltime"]],suffixes=["_gt","_sim"],on="connexion_id",how="inner")
+            merged_df=merged_df.dropna(subset=["route_connexion_average_traveltime_sim","route_connexion_average_traveltime_gt"],axis=0, how="any")
+
+            mse=np.square(
+                merged_df["route_connexion_average_traveltime_sim"]-merged_df["route_connexion_average_traveltime_gt"]
+            ).mean()
+
+            average_tt=merged_df["route_connexion_average_traveltime_sim"].mean()
+
+            mse_list.append(mse)
+            tt_list.append(average_tt)
+
+        if travel_time:
+            return (np.mean(mse_list),np.mean(tt_list))
+        else:
+            return np.mean(mse_list) 

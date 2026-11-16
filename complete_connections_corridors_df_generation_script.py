@@ -1,0 +1,15 @@
+from modules.sumo import TLIncomingCorridors,CompleteCorridorsConnexions
+import torch
+
+net_xml="./Ingolstadt Network/ingolstadt.net.xml"
+route_files_list=["./Ingolstadt Network/InTAS_016.rou.xml","./Ingolstadt Network/InTAS_017.rou.xml","./Ingolstadt Network/InTAS_018.rou.xml"]
+corridors_generator=TLIncomingCorridors(net_file=net_xml,route_files_list=route_files_list)
+corridors_df=corridors_generator.get_corridors_df()
+torch.save(corridors_df,"./corridors_saving/corridors_df.pt")
+
+corridors_df=torch.load("./corridors_saving/corridors_df.pt")
+
+complete_corridors_connexions_generator=CompleteCorridorsConnexions(route_files_list=route_files_list,net_file=net_xml,corridors_df=corridors_df)
+
+complete_corridors_connexions_df=complete_corridors_connexions_generator.create_connexion_corridors_df()
+torch.save(complete_corridors_connexions_df,"./corridors_saving/complete_corridors_connexions_df.pt")

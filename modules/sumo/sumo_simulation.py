@@ -16,7 +16,10 @@ class SumoSimulation():
         self.output_dir=output_dir
         self.tl_ids=tl_ids
 
-    def simulation(self,epoch_index,rep,demand_scaling_factor=None):
+    def simulation(self,
+                   epoch_index,
+                   rep,
+                   demand_scaling_factor=None):
 
         if demand_scaling_factor is not None:
             command=[

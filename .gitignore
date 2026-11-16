@@ -62,6 +62,18 @@ Ingolstadt Network/initial_output/*
 logs/
 logs/*
 
+*.tripinfo.xml
+*.summary.xml
+*.netstate.xml
+*.travel_times.xml
+*.travel_times_sim.xml
+*.summary_out_sim.xml
+*.fcd_output.xml
+*.vehroute.xml
+*.tripinfo_out_sim.xml
+*.travel_times.xml
+*travel_times_sim.xml
+
 *.travel_times.csv
 initial_output/*
 initial_samples/*

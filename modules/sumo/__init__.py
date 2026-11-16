@@ -6,3 +6,7 @@ from .sumo_simulation import SumoSimulation
 from .upper_bounds import get_upper_bounds
 from .creation_agg_dataset import create_agg_dataset
 from .creation_gt_dataset import create_gt_dataset
+from .extract_route_connexion_traveltime import get_route_connexion_average_traveltime
+from .incoming_corridors import TLIncomingCorridors
+from .complete_corridors_connexions import CompleteCorridorsConnexions
+from .vehroute_df_preprocessing import create_vehroute_df

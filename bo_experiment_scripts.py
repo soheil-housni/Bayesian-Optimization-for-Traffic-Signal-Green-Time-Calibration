@@ -209,6 +209,7 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
                     batch_size=batch_size,
                     initial_tl_df=initial_tl_df,
                     RAASP_sampler=raasp_sampler)
+    
     BO_instance.run_loop(version="MSR",initial_length_scale_value=initial_length_scale_value*np.sqrt(x_dim),rs=rs,annotation=annotation,num_replications=num_replications)
 
 def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):

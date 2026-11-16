@@ -17,6 +17,7 @@
 		<summary-output value="InTAS.summary.xml"/>
 		<tripinfo-output value="InTAS.tripinfo.xml"/>
 		<edgedata-output value="InTAS.travel_times.xml"/>
+		<fcd-output value="InTAS.fcd_output.xml"/>
 	</output>
 	<time>
 		<begin value="57600"/>
