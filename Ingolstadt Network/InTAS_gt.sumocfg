@@ -17,6 +17,10 @@
 		<summary-output value="InTAS.summary.xml"/>
 		<tripinfo-output value="InTAS.tripinfo.xml"/>
 		<edgedata-output value="InTAS.travel_times.xml"/>
+		<fcd-output value="InTAS.fcd_output.xml"/>
+		<vehroute-output value="InTAS.vehroute.xml"/>
+		<vehroute-output.exit-times value="true"/>
+		<vehroute-output.write-unfinished value="true"/>
 	</output>
 	<time>
 		<begin value="57600"/>

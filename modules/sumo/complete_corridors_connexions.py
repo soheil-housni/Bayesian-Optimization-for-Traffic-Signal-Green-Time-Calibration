@@ -29,6 +29,7 @@ class CompleteCorridorsConnexions():
         connections_df=self.creation_connexion_df()
         corridors_df_merged=pd.merge(self.corridors_df,connections_df,how="left",on="route_last_edge")
         corridors_df_merged["green_phases"]=corridors_df_merged.apply(self.extract_green_phases,args=(self.net,),axis=1)
+        print(corridors_df_merged.columns)
         connexions_demand_df=self.extract_connexion_demand(corridors_df_merged)
         connexion_corridors_df=pd.merge(corridors_df_merged,connexions_demand_df,how="left",on=["tl","route_str","route_last_edge","to_edge","link_index"])
         route_connexion_demand_df=connexion_corridors_df.groupby("route_str").agg({"connexion_demand":"sum"}).reset_index().rename(columns={"connexion_demand":"route_connexion_demand"})
