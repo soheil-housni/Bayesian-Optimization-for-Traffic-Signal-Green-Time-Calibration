@@ -29,7 +29,6 @@ def create_gt_dataset(
     connexion_id_count=df_gt.value_counts("connexion_id").reset_index()
     df_gt=pd.merge(df_gt,connexion_id_count,on="connexion_id",how="left")
     df_gt["rep_ratio"]=df_gt["count"]/num_replications
-    df_gt=pd.merge(df_gt,complete_corridors_connexions_df[["connexion_id","connexion_demand"]],on="connexion_id",how="left")
     df_gt["connexion_weight"]=df_gt["rep_ratio"]*df_gt["count"]
 
     df_gt.to_csv(f"./{output_dir}df_gt_InTAS.csv")

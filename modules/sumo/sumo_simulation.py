@@ -45,7 +45,10 @@ class SumoSimulation():
                 program_used=traci.trafficlight.getProgram(tl)
 
             
-            traci.simulationStep(61200)
+            while (
+                traci.simulation.getMinExpectedNumber() > 0
+            ):
+                traci.simulationStep()
 
         except Exception as e:
             print(f"Erreur SUMO/TraCI : {e}")

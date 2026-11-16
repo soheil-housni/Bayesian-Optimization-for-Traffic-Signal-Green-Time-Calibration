@@ -32,7 +32,7 @@ import numpy as np
 import pandas as pd
 from modules.bo import optimize_acqf_and_get_observation,BOLoop,initialize_gp_model,InitialSamples
 from modules.msr import raasp_ic_generator,RAASP_sampler
-from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunction,SumoSimulation,get_upper_bounds
+from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunctionConnexionVersion,SumoSimulation,get_upper_bounds
 import sumolib
 from lxml import etree
 import torch
@@ -76,5 +76,5 @@ error_function=ErrorFunction(
     )
 
 
-error_function.compute_error(g_vec=g_vec,epoch_index="test",demand_scaling_factor=3)
+error_function.compute_error(g_vec=g_vec,epoch_index="test")
 PY
