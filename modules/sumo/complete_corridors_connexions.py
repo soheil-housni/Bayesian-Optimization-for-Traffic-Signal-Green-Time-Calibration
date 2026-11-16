@@ -40,7 +40,7 @@ class CompleteCorridorsConnexions():
 
     def extract_connexion_demand(self,corridors_df):
         connexions_demand_dict=[]
-        for index,row in corridors_df[["route","tl","route_str","route_last_edge","to_edge","link_index"]].drop_duplicates().iterrows():
+        for index,row in corridors_df[["route","tl","route_str","route_last_edge","to_edge","link_index"]].drop_duplicates(subset=["tl","route_str","route_last_edge","to_edge","link_index"]).iterrows():
             complete_route=row["route"]+row["to_edge"]
             complete_route_str_str=" ".join(complete_route)
             connexion_demand=self.routes_df.loc[self.routes_df["route_edges"].str.contains(complete_route_str_str,regex=False),"probability"].sum()
