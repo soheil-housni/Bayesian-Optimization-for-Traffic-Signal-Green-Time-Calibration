@@ -16,7 +16,7 @@ class CompleteCorridorsConnexions():
 
         self.routes_df=None
         for route_file in route_files_list:
-            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges"]}).rename(columns={"edges":"route_edges"})
+            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges","probability"]}).rename(columns={"edges":"route_edges"})
             if self.routes_df is None:
                 self.routes_df=sub_routes_df
             else:
