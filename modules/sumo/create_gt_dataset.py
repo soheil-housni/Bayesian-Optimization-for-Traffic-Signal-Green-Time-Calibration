@@ -26,10 +26,8 @@ def create_gt_dataset(
 
     df_gt=df_gt.groupby("connexion_id").agg({"route_connexion_average_traveltime":"mean"})
     df_gt=pd.merge(df_gt,complete_corridors_connexions_df,how="left",on="connexion_id")
-    connexion_id_count=df_gt.value_counts("connexion_id").reset_index()
-    df_gt=pd.merge(df_gt,connexion_id_count,on="connexion_id",how="left")
-    df_gt["rep_ratio"]=df_gt["count"]/num_replications
-    df_gt["connexion_weight"]=df_gt["rep_ratio"]*df_gt["count"]
+    total_demand=df_gt["connexion_demand"].sum()
+    df_gt["connexion_weight"]=df_gt["connexion_demand"]/total_demand
 
     df_gt.to_csv(f"./{output_dir}df_gt_InTAS.csv")
     

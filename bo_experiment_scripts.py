@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from modules.bo import optimize_acqf_and_get_observation,BOLoop,initialize_gp_model,InitialSamples
 from modules.msr import raasp_ic_generator,RAASP_sampler
-from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunction,SumoSimulation,get_upper_bounds
+from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunctionConnexionVersion,SumoSimulation,get_upper_bounds
 import sumolib
 from lxml import etree
 import torch
@@ -110,13 +110,16 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
                                     tl_ids=tl_ids,
                                     )
 
-    objective_function=ErrorFunction(
+    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+    
+    objective_function=ErrorFunctionConnexionVersion(
         initial_tl_df=initial_tl_df,
         output_dir=output_dir,
         sumo_simulator=sumo_simulator,
         df_gt=df_gt,
         additional_xml=additional_xml,
-        tl_ids=tl_ids
+        tl_ids=tl_ids,
+        complete_corridors_connexions_df=complete_corridors_connexions_df
     )
 
     BO_instance=BOLoop(niter=niter,
@@ -185,13 +188,16 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
                                     tl_ids=tl_ids,
                                     )
 
-    objective_function=ErrorFunction(
+    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+    
+    objective_function=ErrorFunctionConnexionVersion(
         initial_tl_df=initial_tl_df,
         output_dir=output_dir,
         sumo_simulator=sumo_simulator,
         df_gt=df_gt,
         additional_xml=additional_xml,
-        tl_ids=tl_ids
+        tl_ids=tl_ids,
+        complete_corridors_connexions_df=complete_corridors_connexions_df
     )
 
     
@@ -247,6 +253,8 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     else:
         annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}"
 
+    
+
     cfg_file, additional_xml = prepare_sumo_files(method=method,annotation=annotation,rs=rs)
 
     batch_size=1
@@ -257,13 +265,16 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
                                     tl_ids=tl_ids,
                                     )
 
-    objective_function=ErrorFunction(
+    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+
+    objective_function=ErrorFunctionConnexionVersion(
         initial_tl_df=initial_tl_df,
         output_dir=output_dir,
         sumo_simulator=sumo_simulator,
         df_gt=df_gt,
         additional_xml=additional_xml,
-        tl_ids=tl_ids
+        tl_ids=tl_ids,
+        complete_corridors_connexions_df=complete_corridors_connexions_df
     )
 
     trust_region_initial_df_list=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)

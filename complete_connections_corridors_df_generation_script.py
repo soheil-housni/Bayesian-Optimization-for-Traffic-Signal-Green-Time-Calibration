@@ -4,9 +4,9 @@ import torch
 net_xml="./Ingolstadt Network/ingolstadt.net.xml"
 route_files_list=["./Ingolstadt Network/InTAS_016.rou.xml","./Ingolstadt Network/InTAS_017.rou.xml","./Ingolstadt Network/InTAS_018.rou.xml"]
 
-#corridors_generator=TLIncomingCorridors(net_file=net_xml,route_files_list=route_files_list)
-#corridors_df=corridors_generator.get_corridors_df()
-#torch.save(corridors_df,"./corridors_savings/corridors_df.pt")
+corridors_generator=TLIncomingCorridors(net_file=net_xml,route_files_list=route_files_list)
+corridors_df=corridors_generator.get_corridors_df()
+torch.save(corridors_df,"./corridors_savings/corridors_df.pt")
 
 corridors_df=torch.load("./corridors_savings/corridors_df.pt",weights_only=False)
 

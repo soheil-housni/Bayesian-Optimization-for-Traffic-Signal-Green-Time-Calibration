@@ -15,7 +15,7 @@ from modules.sumo import create_gt_dataset
 def generate_gt_dataset():
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
-    num_replications=20
+    num_replications=10
     cfg_file="Ingolstadt Network/InTAS_gt.sumocfg"
     output_dir="gt_data/"
     complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt")

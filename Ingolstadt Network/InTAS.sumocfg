@@ -25,6 +25,5 @@
 	<time>
 		<begin value="57600"/>
 		<step-length value="1.0"/>
-		<end value="61200"/>
 	</time>
 </configuration>

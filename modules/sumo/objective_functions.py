@@ -44,15 +44,15 @@ class ErrorFunction():
 
 class ErrorFunctionConnexionVersion():
     def __init__(self,
-                 scaling_factor_loss_fn,
+                 initial_tl_df,
                  df_gt,
                  sumo_simulator,
                  complete_corridors_connexions_df,
                  additional_xml,
                  output_dir,
                  tl_ids):
-        
-        self.scaling_factor_loss_fn=scaling_factor_loss_fn
+
+        self.initial_tl_df=initial_tl_df
         self.sumo_simulator=sumo_simulator
         self.additional_xml=additional_xml
         self.output_dir=output_dir
@@ -71,7 +71,7 @@ class ErrorFunctionConnexionVersion():
                       travel_time=False,
                       demand_scaling_factor=None):
 
-        update_green_times(g_vec=g_vec,additional_xml=self.additional_xml,tl_ids_set=self.tl_ids)
+        update_green_times(g_vec,self.additional_xml,self.tl_ids,self.initial_tl_df)
         shutil.copy(self.additional_xml, f'{self.output_dir}{epoch_index}_copy_additional.xml')
         mse_list=[]
         tt_list=[]
@@ -85,9 +85,9 @@ class ErrorFunctionConnexionVersion():
             merged_df=pd.merge(self.df_gt[["connexion_id","route_connexion_average_traveltime","connexion_weight"]],complete_corridors_connexions_df_sim[["connexion_id","route_connexion_average_traveltime"]],suffixes=["_gt","_sim"],on="connexion_id",how="inner")
             merged_df=merged_df.dropna(subset=["route_connexion_average_traveltime_sim","route_connexion_average_traveltime_gt"],axis=0, how="any")
 
-            mse=merged_df["connexion_weight"]*np.square(
+            mse=(merged_df["connexion_weight"]*np.square(
                 merged_df["route_connexion_average_traveltime_sim"]-merged_df["route_connexion_average_traveltime_gt"]
-            ).mean()
+            )).sum()
 
             average_tt=merged_df["route_connexion_average_traveltime_sim"].mean()
 
