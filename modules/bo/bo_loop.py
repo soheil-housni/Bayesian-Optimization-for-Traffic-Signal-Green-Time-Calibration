@@ -9,7 +9,7 @@ from .gp_initialization import initialize_gp_model
 from botorch import fit_gpytorch_mll
 from botorch.acquisition.analytic import LogExpectedImprovement
 from modules.sumo import check_feasibility
-from modules.sumo import ErrorFunction
+from modules.sumo import ErrorFunctionConnexionVersion
 from .acquisition_function_optimization import optimize_acqf_and_get_observation
 from modules.msr import raasp_ic_generator
 from botorch.generation.sampling import BoltzmannSampling
