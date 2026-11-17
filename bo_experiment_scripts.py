@@ -93,7 +93,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
         annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}"
 
 
-    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv")
     df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
     df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
@@ -165,7 +165,7 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
     )
 
 
-    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv")
     df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
     df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
@@ -247,7 +247,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     )
 
 
-    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv")
     df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
     df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
