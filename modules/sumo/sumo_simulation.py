@@ -36,6 +36,8 @@ class SumoSimulation():
                     "--verbose","--seed", f"{rep}",
                     "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_"
                     ]
+            
+        connection_started = False
         try:
             traci.start(command, numRetries=300)
             connection_started = True

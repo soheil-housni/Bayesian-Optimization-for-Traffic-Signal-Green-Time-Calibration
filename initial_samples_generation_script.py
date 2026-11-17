@@ -13,7 +13,7 @@ import argparse
 import os
 import shutil
 import random
-
+import ast
 
 def set_seed(seed):
     random.seed(seed)
@@ -69,13 +69,15 @@ def prepare_sumo_files(id_init_sample):
 def generate_initial_samples(id_init_sample):
     set_seed(id_init_sample)
 
-    df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
+    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
 
     additional_xml_gt="./Ingolstadt Network/additional_gt.xml"
     initial_tl_df=create_initial_tl_df(additional_xml_gt)
-    num_replications=3
+    num_replications=5
     output_dir_init="initial_output/"
     dtype=torch.double
 

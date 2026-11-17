@@ -3,10 +3,11 @@
 #SBATCH --job-name=vanilla_baseline
 #SBATCH --time=10:00:00
 #SBATCH --mem=32G
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=6
 #SBATCH --array=0-8%9
 #SBATCH --output=logs/%x_%A_%a.out
 #SBATCH --error=logs/%x_%A_%a.err
+#SBATCH --ntasks=1
 
 cd "$SLURM_SUBMIT_DIR"
 

@@ -14,6 +14,7 @@ from itertools import product
 import os
 import shutil
 import random
+import ast
 
 def set_seed(seed):
     random.seed(seed)
@@ -92,7 +93,9 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
         annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}"
 
 
-    df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
+    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
     num_replications=5
@@ -162,7 +165,9 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
     )
 
 
-    df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
+    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
     num_replications=5
@@ -242,7 +247,9 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     )
 
 
-    df_gt=pd.read_csv("./gt_data/gt_InTAS.travel_times.csv")
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv.csv")
+    df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
+    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
     num_replications=5
