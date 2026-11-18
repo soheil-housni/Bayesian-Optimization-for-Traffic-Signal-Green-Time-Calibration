@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=msr
-#SBATCH --time=20:00:00
+#SBATCH --time=25:00:00
 #SBATCH --mem=32G
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=6

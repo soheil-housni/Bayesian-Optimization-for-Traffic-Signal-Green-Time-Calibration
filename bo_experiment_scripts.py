@@ -70,7 +70,7 @@ def prepare_sumo_files(method,annotation,rs):
 def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     set_seed(rs)
 
-    niter=20
+    niter=30
     init_df=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)
     output_dir="BO_output/"
     dtype=torch.double
@@ -146,7 +146,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
 def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
     set_seed(rs)
 
-    niter=20
+    niter=30
     init_df=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)
     output_dir="BO_output/"
     dtype=torch.double
@@ -224,7 +224,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
 
     n_trust_regions=1
     x_dim=98
-    niter=20
+    niter=30
     tr_candidates_generator=TRCandidatesGeneration(x_dim=x_dim,seed=rs)
 
 
