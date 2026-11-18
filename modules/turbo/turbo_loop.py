@@ -12,7 +12,6 @@ class TurboLoop():
     def __init__(self,
                  n_trust_regions,
                  dim,
-                 num_restarts,
                  niter,
                  tr_candidates_generator,
                  objective_function,
@@ -28,7 +27,6 @@ class TurboLoop():
         self.batch_size=batch_size
         self.n_trust_regions=n_trust_regions
         self.dim=dim
-        self.num_restarts=num_restarts
         self.niter=niter
         self.tr_candidates_generator=tr_candidates_generator
         

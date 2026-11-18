@@ -17,7 +17,6 @@ from botorch.generation.sampling import BoltzmannSampling
 class BOLoop():
     def __init__(self,
                  niter,
-                 num_restart,
                  init_df,
                  output_dir,
                  bounds,
@@ -33,7 +32,6 @@ class BOLoop():
                  ):
         
         self.niter=niter
-        self.num_restart=num_restart
         self.init_df=init_df
         self.output_dir=output_dir
         self.bounds=bounds

@@ -70,8 +70,7 @@ def prepare_sumo_files(method,annotation,rs):
 def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     set_seed(rs)
 
-    niter=30
-    num_restarts=3
+    niter=20
     init_df=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)
     output_dir="BO_output/"
     dtype=torch.double
@@ -126,7 +125,6 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
     )
 
     BO_instance=BOLoop(niter=niter,
-                    num_restart=num_restarts,
                     init_df=init_df,
                     output_dir=output_dir,
                     bounds=bounds,
@@ -148,8 +146,7 @@ def run_vanilla(method,id_init_sample,initial_length_scale_value,rs,scaled=False
 def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
     set_seed(rs)
 
-    niter=30
-    num_restart=3
+    niter=20
     init_df=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)
     output_dir="BO_output/"
     dtype=torch.double
@@ -207,7 +204,6 @@ def run_msr(method,id_init_sample,initial_length_scale_value,rs,scaled=True):
 
     
     BO_instance=BOLoop(niter=niter,
-                    num_restart=num_restart,
                     init_df=init_df,
                     output_dir=output_dir,
                     bounds=bounds,
@@ -228,8 +224,7 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
 
     n_trust_regions=1
     x_dim=98
-    num_restarts=3
-    niter=30
+    niter=20
     tr_candidates_generator=TRCandidatesGeneration(x_dim=x_dim,seed=rs)
 
 
@@ -300,7 +295,6 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
     torbo_bo_launcher=TurboLoop(
         n_trust_regions=n_trust_regions,
         dim=x_dim,
-        num_restarts=num_restarts,
         tr_candidates_generator=tr_candidates_generator,
         objective_function=objective_function,
         trust_region_initial_x_norm_list=trust_region_initial_x_norm_list,
