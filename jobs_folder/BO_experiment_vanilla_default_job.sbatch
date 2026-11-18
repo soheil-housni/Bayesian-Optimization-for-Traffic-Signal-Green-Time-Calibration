@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --job-name=vanilla_default
-#SBATCH --time=10:00:00
+#SBATCH --time=20:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=6
 #SBATCH --array=0-8%9
