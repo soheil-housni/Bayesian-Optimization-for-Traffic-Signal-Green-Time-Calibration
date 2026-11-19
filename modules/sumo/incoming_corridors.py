@@ -17,7 +17,7 @@ class TLIncomingCorridors():
 
         self.routes_df=None
         for route_file in route_files_list:
-            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges","probability"]}).rename(columns={"edges":"route_edges"})
+            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges"]}).rename(columns={"edges":"route_edges"})
             if self.routes_df is None:
                 self.routes_df=sub_routes_df
             else:
@@ -140,7 +140,7 @@ class TLIncomingCorridors():
     def extract_route_demand(self,corridors_df):
         routes_demand_dict={}
         for index,row in corridors_df[["route_str","route_str_str"]].drop_duplicates().iterrows():
-            route_demand=self.routes_df.loc[self.routes_df["route_edges"].str.contains(row["route_str_str"],regex=False),"probability"].sum()
+            route_demand=self.routes_df["route_edges"].str.contains(row["route_str_str"],regex=False).sum()
             routes_demand_dict[row["route_str"]]=route_demand
 
         routes_demand_df=pd.DataFrame({"route_str":[key for key in routes_demand_dict.keys()],"route_demand":[value for value in routes_demand_dict.values()]})
@@ -225,6 +225,14 @@ class TLIncomingCorridors():
                 all_tls.append(tl)
 
         corridors_dataframe=pd.DataFrame({"tl":all_tls,"route":all_routes})
+
+        corridors_dataframe["route_str"]=corridors_dataframe["route"].astype(str)
+        
+        corridors_dataframe["route_str"]=corridors_dataframe["route"].astype(str)
+        corridors_dataframe["route_str_str"]=corridors_dataframe["route"].str.join(" ")
+
+        corridors_dataframe=corridors_dataframe.drop_duplicates(subset=["route_str_str"])
+
         corridors_dataframe["route_last_edge"]=corridors_dataframe["route"].str[-1]
 
         corridors_dataframe["route_first_edge"]=corridors_dataframe["route"].str[0]
@@ -242,10 +250,7 @@ class TLIncomingCorridors():
 
         corridors_dataframe["route_n_edges"]=corridors_dataframe["route"].apply(len)
 
-        corridors_dataframe["route_str"]=corridors_dataframe["route"].astype(str)
-
-        corridors_dataframe["route_str"]=corridors_dataframe["route"].astype(str)
-        corridors_dataframe["route_str_str"]=corridors_dataframe["route"].str.join(" ")
+        
 
         #corridors_dataframe=corridors_dataframe.sort_values(["tl","route_first_edge","route_ff_tt"],ascending=[True,True,True])
         #corridors_dataframe=corridors_dataframe.drop_duplicates(["tl","route_first_edge"],keep="first")
@@ -280,6 +285,49 @@ class TLIncomingCorridors():
         route_sum_ff_tt=np.sum(route_ff_tt_array)
 
         return route_sum_length,route_sum_ff_tt
+
+
+    def tl_corridors_extraction(self):
+        routes_df=self.routes_df.copy()
+        routes_df["tl_routes"]=routes_df["route_edges"].apply(self.extract_tl_routes,args=(self.net,))
+
+        merged_dict = {}
+        for dict in routes_df["tl_routes"].values:
+            for key,value in dict.items():
+                merged_dict.setdefault(key,[])
+                merged_dict[key].extend(value)
+
+        corridors={}
+        for key,value in merged_dict.items():
+            corridors[key]={f"route_{i}":value[i] for i in range(len(value))}
+
+        return corridors
+
+
+    def extract_tl_routes(self,full_route,net):
+        full_route=full_route.split(" ")
+        tl_routes={}
+        start_balise=0
+        end_balise=0
+        for i,edge_id in enumerate(full_route):
+            edge=net.getEdge(edge_id)
+            to_node=edge.getToNode()
+            to_node_type=to_node.getType()
+            if to_node_type== "traffic_light":
+                connections=to_node.getConnections()
+                for connection in connections:
+                    tl=connection.getTLSID()
+                    if tl:
+                        break
+                if tl:
+                    end_balise=i+1
+                    if tl_routes.get(tl) is None:
+                        tl_routes.setdefault(tl, [])
+                    tl_routes[tl].append(full_route[start_balise:end_balise])
+                    start_balise=end_balise
+        return tl_routes
+
+    """
 
     def tl_corridors_extraction(self):
         corridors={}
@@ -331,3 +379,5 @@ class TLIncomingCorridors():
                 visited.copy(),
                 corridors
             )
+    
+    """

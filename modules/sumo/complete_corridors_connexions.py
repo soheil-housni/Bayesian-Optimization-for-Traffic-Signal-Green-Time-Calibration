@@ -16,7 +16,7 @@ class CompleteCorridorsConnexions():
 
         self.routes_df=None
         for route_file in route_files_list:
-            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges","probability"]}).rename(columns={"edges":"route_edges"})
+            sub_routes_df=pd.read_xml(route_file, iterparse={"route":["edges"]}).rename(columns={"edges":"route_edges"})
             if self.routes_df is None:
                 self.routes_df=sub_routes_df
             else:
@@ -43,7 +43,7 @@ class CompleteCorridorsConnexions():
         for index,row in corridors_df[["route","tl","route_str","route_last_edge","to_edge","link_index"]].drop_duplicates(subset=["tl","route_str","route_last_edge","to_edge","link_index"]).iterrows():
             complete_route=row["route"]+[row["to_edge"]]
             complete_route_str_str=" ".join(complete_route)
-            connexion_demand=self.routes_df.loc[self.routes_df["route_edges"].str.contains(complete_route_str_str,regex=False),"probability"].sum()
+            connexion_demand=self.routes_df["route_edges"].str.contains(complete_route_str_str,regex=False).sum()
             connexions_demand_dict.append({
                 "tl":row["tl"],
                 "route_str":row["route_str"],

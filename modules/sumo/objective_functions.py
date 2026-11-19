@@ -37,9 +37,9 @@ def run_single_rep_error(rep,
        complete_corridors_connexions_df_sim["route_connexion_average_traveltime"]=complete_corridors_connexions_df_sim.apply(get_route_connexion_average_traveltime,args=(vehroute_df,),axis=1)
        merged_df=pd.merge(df_gt[["connexion_id","route_connexion_average_traveltime","mse_weight"]],complete_corridors_connexions_df_sim[["connexion_id","route_connexion_average_traveltime"]],suffixes=["_gt","_sim"],on="connexion_id",how="inner")
        merged_df=merged_df.dropna(subset=["route_connexion_average_traveltime_sim","route_connexion_average_traveltime_gt"],axis=0, how="any")
-       mse=(merged_df["mse_weight"]*np.square(
+       mse=(merged_df["connexion_weight"]*np.square(
             merged_df["route_connexion_average_traveltime_sim"]-merged_df["route_connexion_average_traveltime_gt"]
-            )).sum()/merged_df["mse_weight"].sum()
+            )).sum()/merged_df["connexion_weight"].sum()
        average_tt=merged_df["route_connexion_average_traveltime_sim"].mean()
 
        return mse,average_tt
@@ -62,23 +62,8 @@ class ErrorFunctionConnexionVersion():
         self.tl_ids=tl_ids
         self.complete_corridors_connexions_df=complete_corridors_connexions_df.sort_values(by="connexion_id")
         self.df_gt=df_gt.sort_values(by="connexion_id")
-
-        all_sub_df_gt=None
-        for j in range(10):
-            sub_df_gt=pd.read_csv(f"./gt_data/complete_corridors_connexions_df_copy_{j}.csv")
-            if all_sub_df_gt is None:
-                all_sub_df_gt=sub_df_gt
-            else:
-                all_sub_df_gt=pd.concat([all_sub_df_gt,sub_df_gt],axis=0)
-
-        connexion_id_counts=all_sub_df_gt["connexion_id"].value_counts().reset_index()
-        connexion_id_counts["rep_ratio"]=connexion_id_counts["count"]/10
-
-        self.df_gt=pd.merge(self.df_gt,connexion_id_counts,how="left",on="connexion_id")
-
         self.df_gt["connexion_weight"]=self.df_gt["connexion_weight"]/self.df_gt["connexion_weight"].sum()
-        self.df_gt["rep_ratio"]=self.df_gt["rep_ratio"]/self.df_gt["rep_ratio"].sum()
-        self.df_gt["mse_weight"]=0.75*self.df_gt["connexion_weight"]+0.25*self.df_gt["rep_ratio"]
+
         
 
 
