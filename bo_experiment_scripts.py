@@ -343,10 +343,10 @@ def run_turbo_ei(method,id_init_sample,initial_length_scale_value,rs,scaled=Fals
     num_replications=5
 
     if scaled:
-        annotation=f"ls_{initial_length_scale_value}scaled_is{id_init_sample}"
+        annotation=f"ls_{initial_length_scale_value}scaled_is{id_init_sample}_ei"
         initial_length_scale_value=initial_length_scale_value*np.sqrt(x_dim)
     else:
-        annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}"
+        annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}_ei"
 
     
 
