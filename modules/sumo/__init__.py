@@ -1,6 +1,6 @@
 from .creation_initial_tl_df import create_initial_tl_df
 from .feasibility_check import check_feasibility
-from .green_times_function import update_green_times
+from .green_times_function import update_green_times,get_connexions_green_time,update_green_time_df
 from .objective_functions import ErrorFunctionConnexionVersion
 from .sumo_simulation import SumoSimulation
 from .upper_bounds import get_upper_bounds

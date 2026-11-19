@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 from botorch.utils.transforms import unnormalize,normalize
 from .custom_thompson_sampler import CustomThompsonSampler
+from botorch.acquisition.analytic import LogExpectedImprovement
+from botorch.optim import optimize_acqf
 
 class TurboLoop():
 
@@ -20,15 +22,19 @@ class TurboLoop():
                  trust_region_initial_df_list,
                  bounds,
                  output_dir,
+                 dtype=torch.double,
                  thompson_r_sample=1,
                  ard=False,
-                 batch_size=1):
+                 batch_size=1,
+                 num_restarts_opti=5,
+                 ei=False):
 
         self.batch_size=batch_size
         self.n_trust_regions=n_trust_regions
         self.dim=dim
         self.niter=niter
         self.tr_candidates_generator=tr_candidates_generator
+        self.dtype=dtype
         
 
         self.ard=ard
@@ -46,6 +52,12 @@ class TurboLoop():
         self.bounds=bounds
 
         self.output_dir=output_dir
+
+        self.num_restarts_opti=num_restarts_opti
+
+        self.raw_samples=min(100*self.dim,5000)
+
+        self.ei=ei
 
 
     def turbo_loop(self,
@@ -147,13 +159,32 @@ class TurboLoop():
                         tr_state.tr_ub
                     )
 
-                    tr_custom_thompson_sampler=CustomThompsonSampler(tr_gp_model)
-                    with torch.no_grad():
-                        best_tr_candidate,f_sample_value=tr_custom_thompson_sampler(tr_candidates_set,num_samples=1)
-                        best_tr_candidate=best_tr_candidate.squeeze(0).squeeze(0)
+                    if not self.ei:
+                        print("Use of the Thompson Sampler")
+                        tr_custom_thompson_sampler=CustomThompsonSampler(tr_gp_model)
+                        with torch.no_grad():
+                            best_tr_candidate,f_sample_value=tr_custom_thompson_sampler(tr_candidates_set,num_samples=1)
+                            best_tr_candidate=best_tr_candidate.squeeze(0).squeeze(0)
+                            batch_selection_candidates.append(best_tr_candidate)
+                            batch_f_samples.append(f_sample_value)
+                            batch_tr_id.append(tr_id)
+
+                    else:
+                        print("Use of the Expected Improvement")
+                        EI = LogExpectedImprovement(tr_gp_model, best_f=tr_state.best_value, maximize=True)
+                        best_tr_candidate, acquisition_value = optimize_acqf(
+                                                      acq_function=EI,
+                                                      bounds=torch.stack([tr_state.tr_lb,tr_state.tr_ub],dim=0).to(self.dtype),
+                                                      q=1,
+                                                      num_restarts=self.num_restarts_opti,
+                                                      raw_samples=self.raw_samples,  # used for intialization heuristic
+                                                      options={"batch_limit": 5, "maxiter": 200},
+                                                  )
+                        best_tr_candidate=best_tr_candidate.squeeze(0)
                         batch_selection_candidates.append(best_tr_candidate)
-                        batch_f_samples.append(f_sample_value)
+                        batch_f_samples.append(acquisition_value.item())
                         batch_tr_id.append(tr_id)
+                        
 
                 batch_selection_candidates=torch.stack(batch_selection_candidates,dim=0)
 

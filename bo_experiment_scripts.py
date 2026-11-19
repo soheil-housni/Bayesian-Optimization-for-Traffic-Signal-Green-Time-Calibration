@@ -303,7 +303,101 @@ def run_turbo(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
         batch_size=batch_size,
         niter=niter,
         bounds=bounds,
-        output_dir=output_dir
+        output_dir=output_dir,
+        ei=False
+    )
+
+
+    torbo_bo_launcher.turbo_loop(initial_length_scale_value=initial_length_scale_value,rs=rs,annotation=annotation,num_replications=num_replications)
+
+
+
+def run_turbo_ei(method,id_init_sample,initial_length_scale_value,rs,scaled=False):
+    set_seed(rs)
+
+    n_trust_regions=1
+    x_dim=98
+    niter=30
+    tr_candidates_generator=TRCandidatesGeneration(x_dim=x_dim,seed=rs)
+
+
+    output_dir="turbo_output/"
+    dtype=torch.double
+    x_dim=98
+    lower_bounds=[5]*x_dim
+    additional_xml_gt="./Ingolstadt Network/additional_gt.xml"
+    initial_tl_df=create_initial_tl_df(additional_xml_gt)
+    upper_bounds=get_upper_bounds(initial_tl_df)
+    bounds=torch.tensor(
+        [lower_bounds,
+        upper_bounds],
+        dtype=dtype
+    )
+
+
+    df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv")
+    df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
+    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
+    net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
+    tl_ids=[tl.getID() for tl in net.getTrafficLights()]
+    num_replications=5
+
+    if scaled:
+        annotation=f"ls_{initial_length_scale_value}scaled_is{id_init_sample}"
+        initial_length_scale_value=initial_length_scale_value*np.sqrt(x_dim)
+    else:
+        annotation=f"ls_{initial_length_scale_value}_is{id_init_sample}"
+
+    
+
+    cfg_file, additional_xml = prepare_sumo_files(method=method,annotation=annotation,rs=rs)
+
+    batch_size=1
+
+    sumo_simulator=SumoSimulation(
+                                    cfg_file=cfg_file,
+                                    output_dir=output_dir,
+                                    tl_ids=tl_ids,
+                                    )
+
+    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+
+    objective_function=ErrorFunctionConnexionVersion(
+        initial_tl_df=initial_tl_df,
+        output_dir=output_dir,
+        sumo_simulator=sumo_simulator,
+        df_gt=df_gt,
+        additional_xml=additional_xml,
+        tl_ids=tl_ids,
+        complete_corridors_connexions_df=complete_corridors_connexions_df
+    )
+
+    trust_region_initial_df_list=torch.load(f"./initial_samples/init_df_{id_init_sample}.pt",weights_only=False)
+    
+
+    trust_region_initial_y_list=torch.load(f"./initial_samples/init_Y_{id_init_sample}.pt",weights_only=False)
+    
+
+    trust_region_initial_x_norm_list=torch.load(f"./initial_samples/init_X_norm_{id_init_sample}.pt",weights_only=False)
+    
+
+    trust_region_initial_df_list=[trust_region_initial_df_list]
+    trust_region_initial_y_list=[trust_region_initial_y_list]
+    trust_region_initial_x_norm_list=[trust_region_initial_x_norm_list]
+
+    torbo_bo_launcher=TurboLoop(
+        n_trust_regions=n_trust_regions,
+        dim=x_dim,
+        tr_candidates_generator=tr_candidates_generator,
+        objective_function=objective_function,
+        trust_region_initial_x_norm_list=trust_region_initial_x_norm_list,
+        trust_region_initial_y_list=trust_region_initial_y_list,
+        trust_region_initial_df_list=trust_region_initial_df_list,
+        batch_size=batch_size,
+        niter=niter,
+        bounds=bounds,
+        output_dir=output_dir,
+        ei=True
     )
 
 
@@ -317,7 +411,7 @@ if __name__=="__main__":
         "--method",
         type=str,
         required=False,
-        choices=["vanilla","msr", "turbo"]
+        choices=["vanilla","msr", "turbo","turbo_ei"]
     )
 
     parser.add_argument(
@@ -338,6 +432,7 @@ if __name__=="__main__":
         type=int,
         required=True
     )
+
 
     args = parser.parse_args()
 
@@ -362,3 +457,5 @@ if __name__=="__main__":
         run_msr(method=args.method,id_init_sample=id_init_sample,initial_length_scale_value=args.initial_lengthscale,rs=rs,scaled=args.scaled)
     elif args.method=="turbo":
         run_turbo(method=args.method,id_init_sample=id_init_sample,initial_length_scale_value=args.initial_lengthscale,rs=rs,scaled=args.scaled)
+    elif args.method=="turbo_ei":
+        run_turbo_ei(method=args.method,id_init_sample=id_init_sample,initial_length_scale_value=args.initial_lengthscale,rs=rs,scaled=args.scaled)
