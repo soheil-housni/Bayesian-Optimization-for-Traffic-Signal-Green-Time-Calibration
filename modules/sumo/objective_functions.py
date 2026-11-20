@@ -35,7 +35,7 @@ def run_single_rep_error(rep,
        complete_corridors_connexions_df_sim.to_csv(f"./{output_dir}{epoch_index}_{rep}_complete_corridors_connexions_df_copy.csv")
 
        complete_corridors_connexions_df_sim["route_connexion_average_traveltime"]=complete_corridors_connexions_df_sim.apply(get_route_connexion_average_traveltime,args=(vehroute_df,),axis=1)
-       merged_df=pd.merge(df_gt[["connexion_id","route_connexion_average_traveltime","mse_weight"]],complete_corridors_connexions_df_sim[["connexion_id","route_connexion_average_traveltime"]],suffixes=["_gt","_sim"],on="connexion_id",how="inner")
+       merged_df=pd.merge(df_gt[["connexion_id","route_connexion_average_traveltime","connexion_weight"]],complete_corridors_connexions_df_sim[["connexion_id","route_connexion_average_traveltime"]],suffixes=["_gt","_sim"],on="connexion_id",how="inner")
        merged_df=merged_df.dropna(subset=["route_connexion_average_traveltime_sim","route_connexion_average_traveltime_gt"],axis=0, how="any")
        mse=(merged_df["connexion_weight"]*np.square(
             merged_df["route_connexion_average_traveltime_sim"]-merged_df["route_connexion_average_traveltime_gt"]
