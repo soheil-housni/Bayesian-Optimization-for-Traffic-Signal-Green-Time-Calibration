@@ -270,11 +270,19 @@ class TLIncomingCorridors():
         first_from_node=first_edge.getFromNode()
         first_from_node_type=first_from_node.getType()
         if first_from_node_type == "traffic_light":
-            connections=first_from_node.getConnections()
-            origin_tl_id=connections[0].getTLSID()
-            return origin_tl_id
-        else:
+            origin_tl_id = None
+            for connection in first_from_node.getConnections():
+                origin_tl_id=connection.getTLSID()
+                if origin_tl_id:
+                    break
+            if origin_tl_id:
+                return origin_tl_id
+            else:
+                return "other_type"
+        elif first_from_node_type == "dead_end":
             return "dead_end"
+        else:
+            return "other_type"
 
     def get_route_length_ff_tt(self,route):
         route_lengths_array=np.array([self.net.getEdge(edge_id).getLength() for edge_id in route])
