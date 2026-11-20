@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=generate_initial_samples
 #SBATCH --time=10:00:00
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=6
 #SBATCH --array=0-2%3
 #SBATCH --output=logs/%x_%A_%a.out

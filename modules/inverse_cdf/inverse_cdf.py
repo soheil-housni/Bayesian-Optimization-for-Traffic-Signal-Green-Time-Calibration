@@ -41,28 +41,49 @@ class InverseCDF():
 
         self.total_weights=self.mse_weights.sum()
 
-    def compute_inverse_cdf(self):
+        self.n_connections=len(self.complete_corridors_connexion_df)
 
-        n_connections=len(self.complete_corridors_connexion_df)
+        self.bounds=[(1,90)]*self.n_connections
 
-        bounds=[
-                 (1,90)
-             ]*n_connections
 
-        Z=[]
+    def compute_CDF(self,
+                    connexion_ff_tt,
+                    connexion_length,
+                    connexion_ff_speed,
+                    connexion_normalized_critical_gt,
+                    connexion_mse_weight,
+                    connexion_true_tt_value,
+                    lower_bound,
+                    upper_bound):
+        
+        cdf=quad(
+            self.connexion_normalized_pdf,
+            a=lower_bound,
+            b=upper_bound,
+            args=(connexion_ff_tt,
+                          connexion_length,
+                          connexion_ff_speed,
+                          connexion_normalized_critical_gt,
+                          connexion_mse_weight,
+                          connexion_true_tt_value)
+            )
 
-        for i in range(n_connections):
-            lower_bound=bounds[i][0]
-            upper_bound=bounds[i][1]
+        return cdf
 
-            connexion_ff_tt=self.ff_tt_values[i]
-            connexion_length=self.length_values[i]
-            connexion_ff_speed=self.ff_speed_values[i]
-            connexion_normalized_critical_gt=self.normalized_critical_gt[i]
-            connexion_mse_weight=self.mse_weights[i],
-            connexion_true_tt_value=self.true_tt_values[i]
+    
 
-            Zi = quad(
+    def compute_Z(self,
+                  connexion_ff_tt,
+                  connexion_length,
+                  connexion_ff_speed,
+                  connexion_normalized_critical_gt,
+                  connexion_mse_weight,
+                  connexion_true_tt_value,
+                  lower_bound,
+                  upper_bound):
+
+
+            Z = quad(
                     self.connexion_unnormalized_pdf,
                     lower_bound,
                     upper_bound,
@@ -73,10 +94,8 @@ class InverseCDF():
                           connexion_mse_weight,
                           connexion_true_tt_value)
                     )
-            Z.append(Zi)
 
-        Z=np.array(Z)
-        self.Z=np.prod(Z)
+            return Z
 
 
     
@@ -89,7 +108,8 @@ class InverseCDF():
                                  connexion_ff_speed,
                                  connexion_normalized_critical_gt,
                                  connexion_mse_weight,
-                                 connexion_true_tt_value):
+                                 connexion_true_tt_value,
+                                 z):
         
         connexion_fA_loss=self.connexion_fA_loss(connexion_gt,
                                                 connexion_ff_tt,
@@ -99,7 +119,7 @@ class InverseCDF():
                                                 connexion_mse_weight,
                                                 connexion_true_tt_value)
         
-        return np.exp(- connexion_fA_loss)*1/self.Z
+        return np.exp(- connexion_fA_loss)*1/z
          
 
     def connexion_unnormalized_pdf(self,

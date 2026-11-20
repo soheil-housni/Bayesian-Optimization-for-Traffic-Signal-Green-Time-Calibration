@@ -2,7 +2,7 @@
 
 #SBATCH --job-name=vanilla_default
 #SBATCH --time=25:00:00
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=6
 #SBATCH --array=0-8%9
 #SBATCH --output=logs/%x_%A_%a.out
