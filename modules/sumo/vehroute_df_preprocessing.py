@@ -12,7 +12,7 @@ def create_vehroute_df(vehroute_file):
 
     for vehicle in root.findall("vehicle"):
         vehicle_id = vehicle.get("id")
-        depart_tim=vehicle.get("depart")
+        depart_time=vehicle.get("depart")
 
         for route in vehicle.findall("route"):
             data.append({
@@ -26,6 +26,9 @@ def create_vehroute_df(vehroute_file):
 
     df["route_str"]=df["route"].astype(str)
     df["route_str_str"]=df["route"].str.join(" ")
-    df=df[~df["exit_times"].apply(lambda x : -1 in x)]
+    filtered_df=df[~df["exit_times"].apply(lambda x : -1 in x)]
+    nb_excluded_vehicles=len(df)-len(filtered_df)
+    print("NB of excluded vehicles :")
+    print(nb_excluded_vehicles)
 
-    return df
+    return filtered_df

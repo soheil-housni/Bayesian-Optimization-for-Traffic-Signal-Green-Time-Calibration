@@ -3,7 +3,7 @@
 #SBATCH --job-name=generate_gt_dataset
 #SBATCH --time=10:00:00
 #SBATCH --mem=64G
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=6
 #SBATCH --output=logs/%x-%j.out
 #SBATCH --error=logs/%x-%j.err
 
