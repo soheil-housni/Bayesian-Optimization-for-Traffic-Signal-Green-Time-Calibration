@@ -27,8 +27,7 @@ class SumoSimulation():
                     "-c", f"./{self.cfg_file}",
                     "--scale",f"{demand_scaling_factor}",
                     "--verbose","--seed", f"{rep}",
-                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_",
-                    "--error-log"
+                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_"
                     ]
         else:
             command=[
@@ -36,7 +35,6 @@ class SumoSimulation():
                     "-c", f"./{self.cfg_file}",
                     "--verbose","--seed", f"{rep}",
                     "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_",
-                    "--error-log"
                     ]
             
         connection_started = False
