@@ -27,19 +27,21 @@ class SumoSimulation():
                     "-c", f"./{self.cfg_file}",
                     "--scale",f"{demand_scaling_factor}",
                     "--verbose","--seed", f"{rep}",
-                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_"
+                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_",
+                    "--error-log", f"{self.output_dir}{epoch_index}_{rep}_error.log"
                     ]
         else:
             command=[
                     "sumo",
                     "-c", f"./{self.cfg_file}",
                     "--verbose","--seed", f"{rep}",
-                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_"
+                    "--output-prefix", f"{self.output_dir}{epoch_index}_{rep}_",
+                    "--error-log", f"{self.output_dir}{epoch_index}_{rep}_error.log"
                     ]
             
         connection_started = False
         try:
-            traci.start(command, numRetries=300)
+            traci.start(command, numRetries=600)
             connection_started = True
             for tl in self.tl_ids:
                 traci.trafficlight.setProgram(tl, "1")

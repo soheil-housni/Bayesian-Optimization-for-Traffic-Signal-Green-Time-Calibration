@@ -19,7 +19,7 @@ def run_single_rep_error(rep,
                          df_gt,
                          demand_scaling_factor=None):
 
-       time.sleep(rep * 1.0)
+       time.sleep(rep * 2.0)
        
        sumo_simulator = SumoSimulation(
         cfg_file=cfg_file,

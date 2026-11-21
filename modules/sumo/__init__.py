@@ -10,3 +10,4 @@ from .extract_route_average_traveltime import get_route_average_traveltime
 from .incoming_corridors import TLIncomingCorridors
 from .complete_corridors_connexions import CompleteCorridorsConnexions
 from .vehroute_df_preprocessing import create_vehroute_df
+from .routes_green_times import GetRouteGreenTime
