@@ -51,6 +51,10 @@ def create_initial_tl_df(gt_additional_xml):
         elif duration == tl_second_max_duration and 2 not in tl_labels.values:
             initial_tl_df.iloc[i, col_idx] = 2
 
-
     initial_tl_df=initial_tl_df.rename(columns={"duration":"initial_duration"})
+
+    tl_const_df=initial_tl_df.loc[initial_tl_df["to_change"]==0]
+    tl_const_df=tl_const_df.groupby("tl").agg({"initial_duration":"sum"}).reset_index().sort_values(by=["tl"]).rename(columns={"initial_duration":"tl_cumulative_constant_duration"})
+    initial_tl_df=pd.merge(initial_tl_df,tl_const_df,on="tl",how="left")
+    
     return initial_tl_df

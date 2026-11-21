@@ -3,26 +3,6 @@ import numpy as np
 
 
 
-
-def get_connexions_green_time(g_vec,complete_corridors_connexions_df,initial_tl_df):
-    tl_df_updated,g_vec_all,complete_tl_df_updated,complete_g_vec_all=update_green_time_df(
-        g_vec=g_vec,
-        initial_tl_df=initial_tl_df
-    )
-
-    def compute_gt(row):
-        green_phases=row["green_phases"]
-        tl=row["tl"]
-        filtered_tl_df=complete_tl_df_updated[(complete_tl_df_updated["tl"]==tl) & (complete_tl_df_updated["state"].isin(green_phases))]
-        return filtered_tl_df["duration"].sum()
-
-
-    complete_corridors_connexions_df["connexion_gt"]=complete_corridors_connexions_df.apply(compute_gt,axis=1)
-
-    return complete_corridors_connexions_df
-
-
-
 def update_green_times(g_vec,
                        additional_xml,
                        tl_ids_set,
