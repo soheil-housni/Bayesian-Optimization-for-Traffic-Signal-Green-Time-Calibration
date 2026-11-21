@@ -1,6 +1,6 @@
 from .creation_initial_tl_df import create_initial_tl_df
 from .feasibility_check import check_feasibility
-from .green_times_function import update_green_times,get_connexions_green_time,update_green_time_df
+from .green_times_function import update_green_times,update_green_time_df
 from .objective_functions import ErrorFunctionRouteVersion
 from .sumo_simulation import SumoSimulation
 from .upper_bounds import get_upper_bounds
@@ -11,3 +11,4 @@ from .incoming_corridors import TLIncomingCorridors
 from .complete_corridors_connexions import CompleteCorridorsConnexions
 from .vehroute_df_preprocessing import create_vehroute_df
 from .routes_green_times import GetRouteGreenTime
+from .route_green_times_formula import get_route_gt
