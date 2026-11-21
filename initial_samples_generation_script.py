@@ -71,7 +71,6 @@ def generate_initial_samples(id_init_sample):
 
     df_gt=pd.read_csv("./gt_data/df_gt_InTAS.csv")
     df_gt["route"]=df_gt["route"].apply(ast.literal_eval)
-    df_gt["green_phases"]=df_gt["green_phases"].apply(ast.literal_eval)
     net=sumolib.net.readNet("Ingolstadt Network/ingolstadt.net.xml")
     tl_ids=[tl.getID() for tl in net.getTrafficLights()]
 
