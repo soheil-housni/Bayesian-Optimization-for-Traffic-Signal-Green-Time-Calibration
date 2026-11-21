@@ -4,7 +4,7 @@ from botorch.utils.transforms import unnormalize,normalize
 from modules.sumo import check_feasibility
 import pandas as pd
 import numpy as np
-from modules.sumo import ErrorFunctionConnexionVersion
+from modules.sumo import ErrorFunctionRouteVersion
 
 class InitialSamples():
     def __init__(self,
