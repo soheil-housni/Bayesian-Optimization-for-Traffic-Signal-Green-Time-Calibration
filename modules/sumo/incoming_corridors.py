@@ -58,9 +58,15 @@ class TLIncomingCorridors():
 
         corridors_df["direct_from_n_junction_inc_lanes"]=corridors_df.apply(self.extract_junction_lanes,axis=1)
 
-        corridors_df["route_id"]=1
+        corridors_df["route_tl_id"]=1
         for tl in corridors_df["tl"].unique():
-            corridors_df.loc[corridors_df["tl"]==tl,"route_id"]=[i for i in range(len(corridors_df.loc[corridors_df["tl"]==tl]))]
+            corridors_df.loc[corridors_df["tl"]==tl,"route_tl_id"]=[i for i in range(len(corridors_df.loc[corridors_df["tl"]==tl]))]
+
+        corridors_df=corridors_df.drop_duplicates(subset=["route_str_str"])
+
+        corridors_df["route_id"]=[r for r in range(len(corridors_df))]
+
+        corridors_df["route_weight"]=corridors_df["route_demand"]/corridors_df["route_demand"].sum()
 
         
 
@@ -312,7 +318,10 @@ class TLIncomingCorridors():
         return corridors
 
 
-    def extract_tl_routes(self,full_route,net):
+    def extract_tl_routes(self,
+                          full_route,
+                          net):
+        
         full_route=full_route.split(" ")
         tl_routes={}
         start_balise=0

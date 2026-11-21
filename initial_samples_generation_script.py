@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from modules.bo import optimize_acqf_and_get_observation,BOLoop,initialize_gp_model,InitialSamples
 from modules.msr import raasp_ic_generator,RAASP_sampler
-from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunctionConnexionVersion,SumoSimulation,get_upper_bounds
+from modules.sumo import create_initial_tl_df,check_feasibility,update_green_times,ErrorFunctionRouteVersion,SumoSimulation,get_upper_bounds
 import sumolib
 from lxml import etree
 import torch
@@ -83,7 +83,7 @@ def generate_initial_samples(id_init_sample):
 
     cfg_file, additional_xml = prepare_sumo_files(id_init_sample)
 
-    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+    corridors_df=torch.load("./corridors_savings/corridors_df.pt",weights_only=False)
 
     init_sumo_simulator=SumoSimulation(
                                     cfg_file=cfg_file,
@@ -91,14 +91,14 @@ def generate_initial_samples(id_init_sample):
                                     tl_ids=tl_ids,
                                     )
 
-    init_objective_function=ErrorFunctionConnexionVersion(
+    init_objective_function=ErrorFunctionRouteVersion(
         initial_tl_df=initial_tl_df,
         output_dir=output_dir_init,
         sumo_simulator=init_sumo_simulator,
         df_gt=df_gt,
         additional_xml=additional_xml,
         tl_ids=tl_ids,
-        complete_corridors_connexions_df=complete_corridors_connexions_df
+        corridors_df=corridors_df
     )
 
     initial_sampler=InitialSamples(dtype=dtype,

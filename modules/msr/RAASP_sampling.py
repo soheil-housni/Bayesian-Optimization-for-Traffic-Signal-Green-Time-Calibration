@@ -46,7 +46,10 @@ class RAASP_sampler():
                     torch.rand_like(best_x)
                     < self.disturbance_prob
             )
-            
+
+            if mask.sum()==0:
+                mask[np.random.randint(0,self.x_dim)]=1
+
             sampled_x=torch.where(mask,disturbed_x,best_x)
             
 

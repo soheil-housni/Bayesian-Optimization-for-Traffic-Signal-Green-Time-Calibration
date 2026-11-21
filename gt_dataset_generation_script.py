@@ -18,9 +18,9 @@ def generate_gt_dataset():
     num_replications=10
     cfg_file="Ingolstadt Network/InTAS_gt.sumocfg"
     output_dir="gt_data/"
-    complete_corridors_connexions_df=torch.load("./corridors_savings/complete_corridors_connexions_df.pt",weights_only=False)
+    corridors_df=torch.load("./corridors_savings/corridors_df.pt",weights_only=False)
     epoch_index="gt"
-    create_gt_dataset(complete_corridors_connexions_df=complete_corridors_connexions_df,
+    create_gt_dataset(corridors_df=corridors_df,
                       output_dir=output_dir,
                       epoch_index=epoch_index,
                       num_replications=num_replications,
