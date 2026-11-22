@@ -270,6 +270,7 @@ class TurboLoop():
             tr_id=tr_state.tr_id
             tr_df=tr_state.tr_df
             tr_df.to_csv(f"{self.output_dir}turbo_tr_{tr_id}_{annotation}_rs_{rs}_training.csv")
+            print("DF OUTPUT GENERATED")
             
 
 

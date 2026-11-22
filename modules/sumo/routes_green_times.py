@@ -20,6 +20,8 @@ class GetRouteGreenTime():
         corridors_df["main_green_phase_info"]=corridors_df.apply(self.extract_main_green_phase,axis=1)
         corridors_df["main_green_phase"]=corridors_df["main_green_phase_info"].str[0]
         corridors_df["main_green_phase_duration"]=corridors_df["main_green_phase_info"].str[1]
+        corridors_df["main_green_phase_to_change"]=corridors_df["main_green_phase_info"].str[2]
+        corridors_df["main_green_phase_initial_duration"]=corridors_df["main_green_phase_info"].str[3]
 
         return corridors_df
 
@@ -30,7 +32,9 @@ class GetRouteGreenTime():
         initial_tl_df_filtered=initial_tl_df_copy[(initial_tl_df_copy["tl"]==tl) & (initial_tl_df_copy["state"].isin(route_green_phases))]
         main_green_phase=initial_tl_df_filtered.loc[initial_tl_df_filtered["initial_duration"]==initial_tl_df_filtered["initial_duration"].max()]["state"].iloc[0]
         main_green_phase_duration=initial_tl_df_filtered.loc[initial_tl_df_filtered["initial_duration"]==initial_tl_df_filtered["initial_duration"].max()]["initial_duration"].iloc[0]
-        return (main_green_phase,main_green_phase_duration)
+        main_green_phase_to_change=initial_tl_df_filtered.loc[initial_tl_df_filtered["initial_duration"]==initial_tl_df_filtered["initial_duration"].max()]["to_change"].iloc[0]
+        initial_duration=initial_tl_df_filtered.loc[(initial_tl_df_filtered["tl"]==tl) & (initial_tl_df_filtered["state"]==main_green_phase)]["initial_duration"].iloc[0]
+        return (main_green_phase,main_green_phase_duration,main_green_phase_to_change,initial_duration)
         
 
     def extract_route_green_phases(self,row):

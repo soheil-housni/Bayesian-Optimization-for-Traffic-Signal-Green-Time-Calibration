@@ -183,7 +183,8 @@ class BOLoop():
         #     df.to_csv(f'{OUTPUT_DIR}df_default_restart{rs}.csv', index=None)    
         # if kernel_name == 'custom_Matern_v2':
         df.to_csv(f'{self.output_dir}BO_df_{version}_{annotation}_restart{rs}.csv', index=None)
-        torch.save(hyperparams_dict,f'./hp_logs/hp_dict_{version}_{annotation}_restart{rs}.pt')  
+        torch.save(hyperparams_dict,f'./hp_logs/hp_dict_{version}_{annotation}_restart{rs}.pt')
+        print("DF OUTPUT GENERATED")
     
 
         
