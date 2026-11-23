@@ -26,7 +26,9 @@ class InverseCDF():
 
         self.df_gt["route_weight"]=self.df_gt["route_weight"]/self.df_gt["route_weight"].sum()
 
-        print(self.df_gt.columns)
+        self.y_train_mean=self.df_gt["route_average_traveltime"].mean()
+        self.y_train_std=self.df_gt["route_average_traveltime"].std()
+
         
         
         self.cycle_time=90
@@ -36,8 +38,10 @@ class InverseCDF():
             raise ValueError("The ground truth DF should contain one row per route")
 
         self.bounds=bounds
+
         
         self.tl_ids=np.sort(self.initial_tl_df["tl"].unique())
+        """
         self.tl_indices_dict={}
         for tl in self.tl_ids:
             self.tl_indices_dict.setdefault(tl,{})
@@ -46,26 +50,34 @@ class InverseCDF():
             self.tl_indices_dict[tl]["to_vary"]=list(df_gt_filtered.loc[df_gt_filtered["main_green_phase_to_change"]==1].index)
             self.tl_indices_dict[tl]["to_change"]=list(df_gt_filtered.loc[df_gt_filtered["main_green_phase_to_change"]==2].index)
             self.tl_indices_dict[tl]["constant"]=list(df_gt_filtered.loc[df_gt_filtered["main_green_phase_to_change"]==0].index)
-
+        """
         self.x_dim=x_dim
 
-
+        """
         self.min_loss = {}
 
         for i, tl in enumerate(self.tl_ids):
+            if tl not in df_gt["tl"].values:
+                continue
             bounds_tl = self.bounds[:, i]
             self.min_loss[tl] = self.compute_min_loss(bounds_tl, tl)
+        """
 
 
     def sample_g_vec(self):
         g_vec=[]
         for i in range(len(self.tl_ids)):
             tl=self.tl_ids[i]
-            if tl not in self.df_gt["tl"].unique():
+            if tl not in self.df_gt["tl"].values:
                 g_vec.append(-1)
                 continue
             bounds=self.bounds[:,i]
             z=self.compute_Z(bounds,tl)
+            print("z :")
+            print(z)
+            full_integral=quad(self.tl_normalized_pdf,a=bounds[0],b=bounds[1],args=(tl,z,))
+            #print("full integral :")
+            #print(full_integral)
             u=np.random.rand()
             g=self.tl_inverse_cdf(u=u,bounds=bounds,tl=tl,z=z)
             g_vec.append(g)
@@ -87,7 +99,7 @@ class InverseCDF():
 
     def tl_normalized_pdf(self,g,tl,z):
         fA_loss=self.tl_fA_loss(g,tl)
-        return (1/z)*np.exp(-(fA_loss-self.min_loss[tl]))
+        return (1/z)*np.exp(-0.5*fA_loss)
 
 
     def compute_Z(self,bounds,tl):
@@ -96,30 +108,39 @@ class InverseCDF():
 
     def tl_unnormalized_pdf(self,g,tl):
         fA_loss=self.tl_fA_loss(g,tl)
-        return np.exp(-(fA_loss-self.min_loss[tl]))
+        return np.exp(-0.5*fA_loss)
 
     def tl_fA_loss(self,g,tl):
 
         df_gt_copy=self.df_gt.copy()
         df_gt_copy_filtered=df_gt_copy.loc[df_gt_copy["tl"]==tl].reset_index(drop=True)
-        if not df_gt_copy_filtered:
-            return None
-        df_gt_copy_filtered=df_gt_copy_filtered.sort_values(by=["route_id"])
+        df_gt_copy_filtered=df_gt_copy_filtered.sort_values(by=["route_id"]).reset_index(drop=True)
 
-        print("df_gt_copy_filtered columns :")
-        print(df_gt_copy_filtered.columns)
+        index_to_vary=list(df_gt_copy_filtered.loc[df_gt_copy_filtered["main_green_phase_to_change"]==1].index)
+        index_to_change=list(df_gt_copy_filtered.loc[df_gt_copy_filtered["main_green_phase_to_change"]==2].index)
+        index_constant=list(df_gt_copy_filtered.loc[df_gt_copy_filtered["main_green_phase_to_change"]==0].index)
+
 
         cumulative_const_value=df_gt_copy_filtered["tl_cumulative_constant_duration"].iloc[0]
+
         gt=np.zeros(len(df_gt_copy_filtered))
+
+
+        gt[index_to_vary]=g
+        gt[index_to_change]=90-g-cumulative_const_value
+        gt[index_constant]=df_gt_copy_filtered.iloc[index_constant]["main_green_phase_initial_duration"]
+
+        """
         gt[self.tl_indices_dict[tl]["to_vary"]]=g
         gt[self.tl_indices_dict[tl]["to_change"]]=90-g-cumulative_const_value
         gt[self.tl_indices_dict[tl]["constant"]]=df_gt_copy_filtered.iloc[self.tl_indices_dict[tl]["constant"]]["main_green_phase_initial_duration"]
+        """
 
         ff_tt_values=df_gt_copy_filtered["route_sum_ff_tt"].values
         length_values=df_gt_copy_filtered["route_sum_length"].values
         ff_speed_values=df_gt_copy_filtered["route_ff_speed"].values
 
-        route_weights_values=df_gt_copy_filtered["route_weight"].values
+        route_weights_values=df_gt_copy_filtered["route_demand"]/df_gt_copy_filtered["route_demand"].sum()
 
         true_tt_values=df_gt_copy_filtered["route_average_traveltime"].values
 
@@ -135,10 +156,17 @@ class InverseCDF():
         predictors=np.array([inverse_proport_ff_tt,normalized_gt,normalized_critical_gt_diff,ff_tt_values,ff_speed_values,critical_ff_speed_length_product,square_inverse_proport_ff_tt])
         coeffs=np.array([-6.40621988e+00,8.57352254e+01,-7.41941697e+00,1.10365529e+01,1.86797158e-01,4.04908884e-01,-2.79010501e-04,-1.20503437e+01])
 
-        connexion_fA_value=coeffs[0]+np.matmul(coeffs[1:],predictors)
-        connexion_tt_fA_values=connexion_fA_value*ff_tt_values
+        routes_tt_fA_values=coeffs[0]+np.matmul(coeffs[1:],predictors)
+        routes_tt_fA_values=routes_tt_fA_values*ff_tt_values
 
-        return np.sum(route_weights_values*np.square(true_tt_values-connexion_tt_fA_values))
+        norm_true_tt_values=(true_tt_values-self.y_train_mean)/self.y_train_std
+        routes_tt_fA_values=(routes_tt_fA_values-self.y_train_mean)/self.y_train_std
+        loss=np.sum(route_weights_values*np.square(norm_true_tt_values-routes_tt_fA_values))
+
+        #loss=np.sum(route_weights_values*np.square(true_tt_values-connexion_tt_fA_values))
+        return float(loss) 
+
+
 
 
     def compute_min_loss(self, bounds, tl, n_points=1000):
@@ -176,7 +204,7 @@ class InverseCDF():
 
 
             result = minimize_scalar(
-                lambda g: self.tl_fA_loss(g, tl),
+                lambda g: self.objective(g, tl),
                 bounds=(left, right),
                 method="bounded"
             )
@@ -188,27 +216,13 @@ class InverseCDF():
 
 
 
+    def objective(self,g,tl):
+        loss = self.tl_fA_loss(g, tl)
 
-"""
-    def fA_loss(self,g_vec):
-        corridors_df_gt=get_route_gt(g_vec,self.corridors_df,self.initial_tl_df)
-        gt=corridors_df_gt["gt"]
+        if loss is None:
+            raise ValueError(f"tl_fA_loss returned None for TL={tl}, g={g}")
 
-    
-        proport_ff_tt=(gt/self.cycle_time)*self.ff_tt_values
-        inverse_proport_ff_tt=1/proport_ff_tt
-        normalized_gt=gt/self.ff_tt_values
-        normalized_critical_gt_diff=normalized_gt-self.normalized_critical_gt
-        critical_ff_speed_length_product=normalized_critical_gt_diff*self.length_values*self.ff_speed_values
-        square_inverse_proport_ff_tt=np.square(inverse_proport_ff_tt)
+        if not np.isfinite(loss):
+            raise ValueError(f"Invalid loss={loss} for TL={tl}, g={g}")
 
-        predictors=np.array([inverse_proport_ff_tt,normalized_gt,normalized_critical_gt_diff,self.ff_tt_values,self.ff_speed_values,critical_ff_speed_length_product,square_inverse_proport_ff_tt])
-        coeffs=np.array([-6.40621988e+00,8.57352254e+01,-7.41941697e+00,1.10365529e+01,1.86797158e-01,4.04908884e-01,-2.79010501e-04,-1.20503437e+01])
-
-        connexion_fA_value=coeffs[0]+np.matmul(coeffs[1:],predictors)
-        connexion_tt_fA_values=connexion_fA_value*self.ff_tt_values
-
-        return np.sum(self.route_weights_values*np.square(self.true_tt_values-connexion_tt_fA_values))/self.total_weights
-
-        
-"""
+        return float(loss)
