@@ -2,7 +2,6 @@
 import sumolib
 import pandas as pd
 import numpy as np
-from .corridors_extraction import CorridorExtractor
 
 class TLIncomingCorridors():
 
@@ -12,8 +11,6 @@ class TLIncomingCorridors():
                  ):
 
         self.net = sumolib.net.readNet(net_file,withInternal=False)
-
-        self.corridors_extractor = CorridorExtractor(self.net)
 
         self.routes_df=None
         for route_file in route_files_list:
@@ -219,7 +216,7 @@ class TLIncomingCorridors():
 
     def creation_tl_corridors_dataframe(self):
 
-        tl_corridors = self.corridors_extractor.tl_corridors_extraction()
+        tl_corridors = self.tl_corridors_extraction()
         print("CORRIDORS EXTRACTED")
 
         all_routes=[]
