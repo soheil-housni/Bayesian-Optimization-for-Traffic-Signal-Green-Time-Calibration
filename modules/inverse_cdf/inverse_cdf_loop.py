@@ -35,6 +35,7 @@ class InverseCDFLoop():
 
         df_result=None
         for i in range(self.niter):
+            print(f"---ITER # {i}---")
             g_vec=self.cdf_inversor.sample_g_vec()
 
             if not check_feasibility(g_vec,initial_tl_df=self.initial_tl_df):
