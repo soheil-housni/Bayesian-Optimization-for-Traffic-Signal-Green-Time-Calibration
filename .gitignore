@@ -90,6 +90,9 @@ turbo_initial_samples/
 
 *state_dict.pt
 
+final_archives/
+final_archives/*
+
 hp_logs/
 hp_logs/*
 
