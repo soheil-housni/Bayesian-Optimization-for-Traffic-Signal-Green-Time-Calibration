@@ -105,7 +105,9 @@ def run_inverse_cdf(rs):
                             niter=niter,
                             num_replications=num_replications,
                             initial_tl_df=initial_tl_df,
-                            x_bounds=bounds,output_dir=output_dir)
+                            x_bounds=bounds,
+                            output_dir=output_dir)
+    
     inverse_cdf_loop.run_loop(rs=rs)
 
 if __name__=="__main__":

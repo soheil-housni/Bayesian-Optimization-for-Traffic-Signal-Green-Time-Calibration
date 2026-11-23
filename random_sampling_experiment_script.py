@@ -108,6 +108,7 @@ def run_inverse_cdf(rs):
                                         num_replications=num_replications,
                                         x_bounds=bounds,
                                         initial_tl_df=initial_tl_df,
+                                        output_dir=output_dir
                                         )
     random_sampling_loop.run_loop(rs=rs)
 

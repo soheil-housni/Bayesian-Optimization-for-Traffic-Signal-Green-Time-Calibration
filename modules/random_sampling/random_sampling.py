@@ -15,6 +15,7 @@ class RandomSampling():
                  num_replications,
                  x_bounds,
                  initial_tl_df,
+                 output_dir,
                  x_dim=98,
                  dtype=torch.double
                  ):
@@ -26,6 +27,7 @@ class RandomSampling():
         self.dtype=dtype
         self.x_bounds=x_bounds
         self.initial_tl_df=initial_tl_df
+        self.output_dir=output_dir
         
 
     def run_loop(self,
