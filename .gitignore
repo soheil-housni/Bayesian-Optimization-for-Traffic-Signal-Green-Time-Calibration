@@ -62,6 +62,9 @@ Ingolstadt Network/initial_output/*
 logs/
 logs/*
 
+final_BO_output/
+final_BO_output/*
+
 *.tripinfo.xml
 *.summary.xml
 *.netstate.xml
@@ -95,6 +98,12 @@ final_archives/*
 
 hp_logs/
 hp_logs/*
+
+inverse_cdf_output/
+inverse_cdf_output/*
+
+random_sampling_output/
+random_sampling_output*
 
 !additional_gt.xml
 !additional.xml
