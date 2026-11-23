@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#SBATCH --job-name=inverse_cdf
+#SBATCH --time=25:00:00
+#SBATCH --mem=64G
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=6
+#SBATCH --array=0-3%3
+#SBATCH --output=logs/%x_%A_%a.out
+#SBATCH --error=logs/%x_%A_%a.err
+
+cd "$SLURM_SUBMIT_DIR"
+
+module load python/3.11.5
+source ~/envs/thesis/bin/activate
+
+
+export SUMO_HOME="$HOME/sumo_install/sumo"
+export PATH="$SUMO_HOME/bin:$PATH"
+export PYTHONPATH="$SUMO_HOME/tools:$PYTHONPATH"
+
+export LD_PRELOAD="/cvmfs/soft.computecanada.ca/gentoo/2023/x86-64-v3/usr/lib/gcc/x86_64-pc-linux-gnu/13/libatomic.so.1"
+
+echo "Python : $(which python)"
+python --version
+
+echo "SUMO : $(which sumo)"
+sumo --version
+
+
+python -u inverse_cdf_experiment_script.py --rs $SLURM_ARRAY_TASK_ID

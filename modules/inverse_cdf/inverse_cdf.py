@@ -4,6 +4,7 @@ import pandas as pd
 from scipy.optimize import brentq
 from modules.sumo import get_route_gt
 from scipy.optimize import minimize_scalar
+from concurrent.futures import ProcessPoolExecutor
 
 class InverseCDF():
     def __init__(self,
@@ -11,8 +12,11 @@ class InverseCDF():
                  initial_tl_df,
                  bounds,
                  route_green_time_accessor,
-                 x_dim
+                 temperature=0.5,
+                 num_workers=5
                  ):
+
+        self.temperature=temperature
         
         self.df_gt=df_gt
         self.initial_tl_df=initial_tl_df
@@ -25,9 +29,6 @@ class InverseCDF():
         self.df_gt=self.df_gt.sort_values(by="route_id")
 
         self.df_gt["route_weight"]=self.df_gt["route_weight"]/self.df_gt["route_weight"].sum()
-
-        self.y_train_mean=self.df_gt["route_average_traveltime"].mean()
-        self.y_train_std=self.df_gt["route_average_traveltime"].std()
 
         
         
@@ -51,7 +52,6 @@ class InverseCDF():
             self.tl_indices_dict[tl]["to_change"]=list(df_gt_filtered.loc[df_gt_filtered["main_green_phase_to_change"]==2].index)
             self.tl_indices_dict[tl]["constant"]=list(df_gt_filtered.loc[df_gt_filtered["main_green_phase_to_change"]==0].index)
         """
-        self.x_dim=x_dim
 
         """
         self.min_loss = {}
@@ -62,29 +62,41 @@ class InverseCDF():
             bounds_tl = self.bounds[:, i]
             self.min_loss[tl] = self.compute_min_loss(bounds_tl, tl)
         """
+        self.num_workers=num_workers
 
+
+    """
+    def sample_tl_g_value(self,tl,i):
+        bounds=self.bounds[:,i]
+        z=self.compute_Z(bounds,tl)
+        u=np.random.rand()
+        g=self.tl_inverse_cdf(u=u,bounds=bounds,tl=tl,z=z)
+        return g
 
     def sample_g_vec(self):
         g_vec=[]
-        for i in range(len(self.tl_ids)):
-            tl=self.tl_ids[i]
-            if tl not in self.df_gt["tl"].values:
+        args_list=[(tl,i) for i,tl in enumerate(self.tl_ids)]
+        with ProcessPoolExecutor(max_workers=self.num_workers) as executor:
+            futures=[executor.submit(self.sample_tl_g_value, *args) for args in args_list]
+            g_vec = [future.result() for future in futures]
+        
+        return np.array(g_vec)
+    """
+
+    def sample_g_vec(self):
+        g_vec=[]
+        for i,tl in enumerate(self.tl_ids):
+            if tl in self.df_gt["tl"].values:
+                bounds=self.bounds[:,i]
+                z=self.compute_Z(bounds,tl)
+                u=np.random.rand()
+                g=self.tl_inverse_cdf(u=u,bounds=bounds,tl=tl,z=z)
+                g_vec.append(g)
+            else:
                 g_vec.append(-1)
-                continue
-            bounds=self.bounds[:,i]
-            z=self.compute_Z(bounds,tl)
-            print("z :")
-            print(z)
-            full_integral=quad(self.tl_normalized_pdf,a=bounds[0],b=bounds[1],args=(tl,z,))
-            #print("full integral :")
-            #print(full_integral)
-            u=np.random.rand()
-            g=self.tl_inverse_cdf(u=u,bounds=bounds,tl=tl,z=z)
-            g_vec.append(g)
 
-        return g_vec
-
-    
+        
+        return np.array(g_vec)
 
     def tl_inverse_cdf(self,u,bounds,tl,z):
         def objective(g,bounds,u,tl,z):
@@ -99,7 +111,8 @@ class InverseCDF():
 
     def tl_normalized_pdf(self,g,tl,z):
         fA_loss=self.tl_fA_loss(g,tl)
-        return (1/z)*np.exp(-0.5*fA_loss)
+        return (1/z)*(1/(1+fA_loss/self.temperature))
+        #return (1/z)*np.exp(-0.5*fA_loss/self.temperature)
 
 
     def compute_Z(self,bounds,tl):
@@ -108,7 +121,8 @@ class InverseCDF():
 
     def tl_unnormalized_pdf(self,g,tl):
         fA_loss=self.tl_fA_loss(g,tl)
-        return np.exp(-0.5*fA_loss)
+        return 1/(1+fA_loss/self.temperature)
+        #return np.exp(-0.5*fA_loss/self.temperature)
 
     def tl_fA_loss(self,g,tl):
 
@@ -144,6 +158,9 @@ class InverseCDF():
 
         true_tt_values=df_gt_copy_filtered["route_average_traveltime"].values
 
+        y_train_mean=true_tt_values.mean()
+        y_train_std=true_tt_values.std()
+
         normalized_critical_gt=(27.79340206/(ff_tt_values-0.10356882)) + 0.10519363
 
         proport_ff_tt=(gt/self.cycle_time)*ff_tt_values
@@ -159,70 +176,9 @@ class InverseCDF():
         routes_tt_fA_values=coeffs[0]+np.matmul(coeffs[1:],predictors)
         routes_tt_fA_values=routes_tt_fA_values*ff_tt_values
 
-        norm_true_tt_values=(true_tt_values-self.y_train_mean)/self.y_train_std
-        routes_tt_fA_values=(routes_tt_fA_values-self.y_train_mean)/self.y_train_std
-        loss=np.sum(route_weights_values*np.square(norm_true_tt_values-routes_tt_fA_values))
+        #norm_true_tt_values=(true_tt_values-y_train_mean)/y_train_std
+        #norm_routes_tt_fA_values=(routes_tt_fA_values-y_train_mean)/y_train_std
+        loss=np.sum(route_weights_values*(np.square(true_tt_values-routes_tt_fA_values)/np.square(y_train_mean)))
 
         #loss=np.sum(route_weights_values*np.square(true_tt_values-connexion_tt_fA_values))
         return float(loss) 
-
-
-
-
-    def compute_min_loss(self, bounds, tl, n_points=1000):
-
-        bounds = np.asarray(bounds, dtype=np.float64)
-
-        g_values = np.linspace(
-            float(bounds[0]),
-            float(bounds[1]),
-            n_points
-        )
-
-        loss_values = np.asarray(
-            [self.tl_fA_loss(g, tl) for g in g_values],
-            dtype=np.float64
-        )
-
-        candidates = [np.argmin(loss_values)]
-
-        candidates += list(
-            np.where(
-                (loss_values[1:-1] < loss_values[:-2]) &
-                (loss_values[1:-1] < loss_values[2:])
-            )[0] + 1
-        )
-
-        min_loss = min(loss_values[0], loss_values[-1])
-
-        for idx in candidates:
-            left = g_values[max(0, idx - 1)]
-            right = g_values[min(n_points - 1, idx + 1)]
-
-            if left == right:
-                continue
-
-
-            result = minimize_scalar(
-                lambda g: self.objective(g, tl),
-                bounds=(left, right),
-                method="bounded"
-            )
-
-            min_loss = min(min_loss, result.fun)
-
-        return min_loss
-
-
-
-
-    def objective(self,g,tl):
-        loss = self.tl_fA_loss(g, tl)
-
-        if loss is None:
-            raise ValueError(f"tl_fA_loss returned None for TL={tl}, g={g}")
-
-        if not np.isfinite(loss):
-            raise ValueError(f"Invalid loss={loss} for TL={tl}, g={g}")
-
-        return float(loss)
