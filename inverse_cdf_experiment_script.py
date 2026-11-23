@@ -80,6 +80,7 @@ def run_inverse_cdf(rs):
 
     cfg_file, additional_xml = prepare_sumo_files(rs=rs)
 
+    output_dir="inverse_cdf_output/"
 
     sumo_simulator=SumoSimulation(cfg_file=cfg_file,
                                   output_dir=output_dir,
@@ -88,7 +89,6 @@ def run_inverse_cdf(rs):
 
     corridors_df=torch.load("./corridors_savings/corridors_df.pt",weights_only=False)
 
-    output_dir="inverse_cdf_output/"
     objective_function=ErrorFunctionRouteVersion(
             initial_tl_df=initial_tl_df,
             output_dir=output_dir,

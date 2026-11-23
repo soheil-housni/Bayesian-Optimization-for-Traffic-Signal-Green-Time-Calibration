@@ -36,11 +36,11 @@ def prepare_sumo_files(rs):
     )
 
     additional_xml = os.path.join(
-        network_dir, f"additional_inverse_cdf_rs{rs}.xml"
+        network_dir, f"additional_random_sampling_rs{rs}.xml"
     )
 
     cfg_file = os.path.join(
-        network_dir, f"InTAS_inverse_cdf_rs{rs}.sumocfg"
+        network_dir, f"InTAS_random_sampling_rs{rs}.sumocfg"
     )
 
     shutil.copy2(original_additional, additional_xml)
@@ -53,7 +53,7 @@ def prepare_sumo_files(rs):
     if additional_files is None:
         raise ValueError("additional-files introuvable dans le sumocfg")
 
-    additional_files.set("value", f"additional_inverse_cdf_rs{rs}.xml")
+    additional_files.set("value", f"additional_random_sampling_rs{rs}.xml")
 
     tree.write(cfg_file, encoding="UTF-8", xml_declaration=True)
 
@@ -82,7 +82,7 @@ def run_inverse_cdf(rs):
 
 
     cfg_file, additional_xml = prepare_sumo_files(rs=rs)
-
+    output_dir="random_sampling_output/"
 
     sumo_simulator=SumoSimulation(cfg_file=cfg_file,
                                   output_dir=output_dir,
@@ -91,7 +91,6 @@ def run_inverse_cdf(rs):
 
     corridors_df=torch.load("./corridors_savings/corridors_df.pt",weights_only=False)
 
-    output_dir="random_sampling_output/"
     objective_function=ErrorFunctionRouteVersion(
             initial_tl_df=initial_tl_df,
             output_dir=output_dir,
