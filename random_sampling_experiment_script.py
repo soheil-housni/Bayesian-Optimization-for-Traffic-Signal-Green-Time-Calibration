@@ -60,7 +60,7 @@ def prepare_sumo_files(rs):
     return cfg_file, additional_xml
 
 
-def run_inverse_cdf(rs):
+def run_random_sampling(rs):
     set_seed(rs)
     net_xml="./Ingolstadt Network/ingolstadt.net.xml"
 
@@ -119,5 +119,5 @@ if __name__=="__main__":
                     required=False
     )
     args = parser.parse_args()
-    run_inverse_cdf(rs=args.rs)
+    run_random_sampling(rs=args.rs)
     

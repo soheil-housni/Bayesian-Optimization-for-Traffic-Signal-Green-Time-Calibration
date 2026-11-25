@@ -5,7 +5,7 @@ import pandas as pd
 import torch
 from botorch.sampling.stochastic_samplers import StochasticSampler
 from botorch.utils.transforms import unnormalize,normalize
-from .gp_initialization import initialize_gp_model
+from gp import initialize_gp_model
 from botorch import fit_gpytorch_mll
 from botorch.acquisition.analytic import LogExpectedImprovement
 from modules.sumo import check_feasibility
@@ -27,6 +27,7 @@ class BOLoop():
                  raw_samples,
                  device,
                  initial_tl_df,
+                 gp_initializer,
                  num_restarts_opti=5,
                  RAASP_sampler=None,
                  ):
@@ -44,6 +45,7 @@ class BOLoop():
         self.device=device
         self.initial_tl_df=initial_tl_df
         self.RAASP_sampler=RAASP_sampler
+        self.gp_initializer=gp_initializer
     
 
     def run_loop(self,
@@ -51,6 +53,8 @@ class BOLoop():
                  annotation,
                  rs,
                  num_replications,
+                 kernel_name="MaternKernel_default",
+                 mean_name="ConstantMean",
                  demand_scaling_factor=None,
                  initial_length_scale_value=0.6931
                  ):
@@ -78,6 +82,9 @@ class BOLoop():
             train_Y = -torch.from_numpy(df[["loss_estimate"]].values)
             train_Y=train_Y.to(self.dtype)
 
+            Y_train_mean=train_Y.mean(dim=0).item()
+            Y_train_std=train_Y.std(dim=0).item()
+
             best_y,best_y_index = torch.max(train_Y,dim=0)
             best_y=best_y.item()
             best_y_index=best_y_index.item()
@@ -92,7 +99,13 @@ class BOLoop():
 
             print(f"##### best_value={best_y} #####")
             print(f"Shape of train_X_norm is {train_X_norm.shape}")
-            gp_model, gp_mll = initialize_gp_model(train_X=train_X_norm,train_Y=train_Y,initial_length_scale_value=initial_length_scale_value)
+            gp_model, gp_mll = self.gp_initializer.initialize_gp_model(train_X=train_X_norm,
+                                                                       train_Y=train_Y,
+                                                                       initial_length_scale_value=initial_length_scale_value,
+                                                                       kernel_name=kernel_name,
+                                                                       mean_name=mean_name,
+                                                                       Y_train_mean=Y_train_mean,
+                                                                       Y_train_std=Y_train_std)
             if i==0:
                 hyperparams_dict["raw_lengthscale"].append(gp_model.covar_module.base_kernel.raw_lengthscale)
                 hyperparams_dict["lengthscale"].append(gp_model.covar_module.base_kernel.lengthscale)
@@ -115,7 +128,7 @@ class BOLoop():
                 print(f'***** CAREFUL ****** kernel was not able to fit GP based at epoch {i}, skipping this epoch. Keep in mind for final numerical analysis of results')
                 continue
 
-            epoch_index=f"BO_iter_{i}_{version}_{annotation}_restart{rs}"
+            epoch_index=f"BO_iter_{i}_{version}_{kernel_name}_{mean_name}_{annotation}_restart{rs}"
 
 
 
@@ -184,8 +197,8 @@ class BOLoop():
         # if kernel_name == 'custom_Matern_v2':
 
         #df.to_csv(f'{self.output_dir}BO_df_{version}_{annotation}_restart{rs}.csv', index=None)
-        df.to_csv(f'final_BO_output/BO_df_{version}_{annotation}_restart{rs}.csv', index=None)
-        torch.save(hyperparams_dict,f'./hp_logs/hp_dict_{version}_{annotation}_restart{rs}.pt')
+        df.to_csv(f'final_BO_output/BO_df_{version}_{kernel_name}_{mean_name}_{annotation}_restart{rs}.csv', index=None)
+        torch.save(hyperparams_dict,f'./hp_logs/hp_dict_{version}_{kernel_name}_{mean_name}_{annotation}_restart{rs}.pt')
         print("DF OUTPUT GENERATED")
     
 

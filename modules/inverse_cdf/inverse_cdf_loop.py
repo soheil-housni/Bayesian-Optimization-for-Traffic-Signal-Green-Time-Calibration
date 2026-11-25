@@ -63,7 +63,7 @@ class InverseCDFLoop():
                 df_result=pd.concat([df_result,row],axis=0)
 
         
-        df_result.to_csv(f"{self.output_dir}/inverse_cdf_df_rs{rs}")
+        df_result.to_csv(f"{self.output_dir}/inverse_cdf_df_rs{rs}.csv")
             
 
 
