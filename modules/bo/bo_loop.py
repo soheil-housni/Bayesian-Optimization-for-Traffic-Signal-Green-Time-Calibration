@@ -5,7 +5,6 @@ import pandas as pd
 import torch
 from botorch.sampling.stochastic_samplers import StochasticSampler
 from botorch.utils.transforms import unnormalize,normalize
-from gp import initialize_gp_model
 from botorch import fit_gpytorch_mll
 from botorch.acquisition.analytic import LogExpectedImprovement
 from modules.sumo import check_feasibility

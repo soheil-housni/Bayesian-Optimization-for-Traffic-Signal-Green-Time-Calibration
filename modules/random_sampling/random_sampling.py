@@ -69,7 +69,7 @@ class RandomSampling():
                 df_result=pd.concat([df_result,row],axis=0)
 
         
-        df_result.to_csv(f"{self.output_dir}/random_sampling_df_rs{rs}")
+        df_result.to_csv(f"{self.output_dir}random_sampling_df_rs{rs}.csv")
             
 
 

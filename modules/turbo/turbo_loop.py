@@ -8,6 +8,7 @@ from botorch.utils.transforms import unnormalize,normalize
 from .custom_thompson_sampler import CustomThompsonSampler
 from botorch.acquisition.analytic import LogExpectedImprovement
 from botorch.optim import optimize_acqf
+from botorch import fit_gpytorch_mll
 
 class TurboLoop():
 
@@ -22,6 +23,7 @@ class TurboLoop():
                  trust_region_initial_df_list,
                  bounds,
                  output_dir,
+                 gp_initializer,
                  dtype=torch.double,
                  thompson_r_sample=1,
                  ard=False,
@@ -59,13 +61,16 @@ class TurboLoop():
 
         self.ei=ei
 
+        self.gp_initializer=gp_initializer
+
 
     def turbo_loop(self,
                    annotation,
                    rs,
                    num_replications,
-                   demand_scaling_factor=None,
-                   initial_length_scale_value=0.6931):
+                   initial_length_scale_value,
+                   demand_scaling_factor=None
+                   ):
 
         self.tr_candidates_generator.seed=rs
         
@@ -107,6 +112,16 @@ class TurboLoop():
 
             torch.save(state_dict,f"./turbo_states_logs/tr_{tr_id}_i_-1_{annotation}_rs_{rs}_tr_state_dict.pt")
 
+        hyperparams_dict={
+            "raw_lengthscale":[],
+            "lengthscale":[],
+            "raw_amplitude":[],
+            "amplitude":[],
+            "noise":[],
+            "raw_noise":[],
+            "constant_mean":[]
+        }
+
         for i in range(self.niter):
             batch_candidates_across_tr=[]
             batch_obj_value_across_tr=[]
@@ -126,7 +141,29 @@ class TurboLoop():
                 tr_x_best_norm=tr_state.tr_x_best_norm
 
 
-                gp_model=tr_gp_fit(tr_x_train=tr_x_norm,tr_y_train=tr_y,initial_length_scale_value=initial_length_scale_value)
+                #gp_model=tr_gp_fit(tr_x_train=tr_x_norm,tr_y_train=tr_y,initial_length_scale_value=initial_length_scale_value,gp_initializer=self.gp_initializer)
+                gp_model, gp_mll=self.gp_initializer.initialize_gp_model(train_X=tr_x_norm,train_Y=tr_y,initial_length_scale_value=initial_length_scale_value)
+                if i==0:
+                    hyperparams_dict["raw_lengthscale"].append(gp_model.covar_module.base_kernel.raw_lengthscale)
+                    hyperparams_dict["lengthscale"].append(gp_model.covar_module.base_kernel.lengthscale)
+                    hyperparams_dict["amplitude"].append(gp_model.covar_module.outputscale)
+                    hyperparams_dict["raw_amplitude"].append(gp_model.covar_module.raw_outputscale)
+                    hyperparams_dict["noise"].append(gp_model.likelihood.noise)
+                    hyperparams_dict["raw_noise"].append(gp_model.likelihood.noise_covar.raw_noise)
+                    hyperparams_dict["constant_mean"].append(gp_model.mean_module.constant)
+
+                try:
+                        fit_gpytorch_mll(gp_mll)
+                        hyperparams_dict["raw_lengthscale"].append(gp_model.covar_module.base_kernel.raw_lengthscale)
+                        hyperparams_dict["lengthscale"].append(gp_model.covar_module.base_kernel.lengthscale)
+                        hyperparams_dict["amplitude"].append(gp_model.covar_module.outputscale)
+                        hyperparams_dict["raw_amplitude"].append(gp_model.covar_module.raw_outputscale)
+                        hyperparams_dict["noise"].append(gp_model.likelihood.noise)
+                        hyperparams_dict["raw_noise"].append(gp_model.likelihood.noise_covar.raw_noise)
+                        hyperparams_dict["constant_mean"].append(gp_model.mean_module.constant)
+                except:
+                        print(f'***** CAREFUL ****** kernel was not able to fit GP based , skipping this epoch. Keep in mind for final numerical analysis of results')
+                        return None
 
                 if not self.ard:
                     tr_state.tr_ub=torch.clamp(tr_x_best_norm+tr_state.length/2,0.0,1.0)
@@ -263,13 +300,14 @@ class TurboLoop():
                             "constant_mean":tr_state.tr_gp_model.mean_module.constant
                             }
 
-                torch.save(state_dict,f"./turbo_states_logs/tr_{tr_id}_i_{i}_{annotation}_rs_{rs}_tr_state_dict.pt")
+                torch.save(state_dict,f"./turbo_states_logs_2/tr_{tr_id}_i_{i}_{annotation}_rs_{rs}_tr_state_dict.pt")
 
+        torch.save(hyperparams_dict,f"./turbo_hp_logs/tr_{tr_id}_i_{i}_{annotation}_rs_{rs}_tr_hp_dict.pt")
         for n in range(len(self.TR_turbo_states)):
             tr_state=self.TR_turbo_states[n]
             tr_id=tr_state.tr_id
             tr_df=tr_state.tr_df
-            tr_df.to_csv(f"final_BO_output/turbo_tr_{tr_id}_{annotation}_rs_{rs}_training.csv")
+            tr_df.to_csv(f"final_turbo_output_2/turbo_tr_{tr_id}_{annotation}_rs_{rs}_training.csv")
             print("DF OUTPUT GENERATED")
             
 

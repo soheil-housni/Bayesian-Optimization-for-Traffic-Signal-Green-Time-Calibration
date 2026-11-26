@@ -23,9 +23,9 @@ class InitaliseGPModel():
     def initialize_gp_model(self,
                             train_X,
                             train_Y,
+                            initial_length_scale_value,
                             kernel_name=None,
                             mean_name=None,
-                            initial_length_scale_value=0.6931,
                             Y_train_mean=None,
                             Y_train_std=None):
 

@@ -15,7 +15,6 @@ import os
 import shutil
 import random
 import ast
-from modules.gp import initialize_gp_model
 
 def set_seed(seed):
     random.seed(seed)

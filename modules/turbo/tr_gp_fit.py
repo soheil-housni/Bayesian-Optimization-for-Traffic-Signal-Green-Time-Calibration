@@ -1,5 +1,4 @@
 import torch
-from modules.bo import initialize_gp_model
 from botorch import fit_gpytorch_mll
 from .trust_regions_candidates_generation import TRCandidatesGeneration
 from botorch.generation.sampling import MaxPosteriorSampling
@@ -7,10 +6,11 @@ from botorch.generation.sampling import MaxPosteriorSampling
 def tr_gp_fit(
         tr_x_train,
         tr_y_train,
-        initial_length_scale_value=0.6931
+        initial_length_scale_value,
+        gp_initializer
         ):
 
-        gp_model, gp_mll=initialize_gp_model(tr_x_train,tr_y_train,initial_length_scale_value=initial_length_scale_value)
+        gp_model, gp_mll=gp_initializer.initialize_gp_model(train_X=tr_x_train,train_Y=tr_y_train,initial_length_scale_value=initial_length_scale_value)
         try:
                 fit_gpytorch_mll(gp_mll)
                 return gp_model
