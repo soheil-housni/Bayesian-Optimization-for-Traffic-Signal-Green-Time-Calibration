@@ -110,7 +110,7 @@ class TurboLoop():
                 "batch_size":tr_state.batch_size
             }
 
-            torch.save(state_dict,f"./turbo_states_logs/tr_{tr_id}_i_-1_{annotation}_rs_{rs}_tr_state_dict.pt")
+            torch.save(state_dict,f"./turbo_states_logs_2/tr_{tr_id}_i_-1_{annotation}_rs_{rs}_tr_state_dict.pt")
 
         hyperparams_dict={
             "raw_lengthscale":[],
