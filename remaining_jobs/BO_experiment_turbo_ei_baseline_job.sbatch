@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=turbo_ei_baseline
+#SBATCH --job-name=turbo_ei_scaled
 #SBATCH --time=25:00:00
 #SBATCH --mem=64G
 #SBATCH --cpus-per-task=6
@@ -28,4 +28,4 @@ echo "SUMO : $(which sumo)"
 sumo --version
 
 
-python -u copy_bo_experiment_scripts.py --method turbo_ei --initial_lengthscale 0.1 
+python -u turbo_experiment_script_2_copy.py --method turbo_ei --initial_lengthscale 0.1 --scaled

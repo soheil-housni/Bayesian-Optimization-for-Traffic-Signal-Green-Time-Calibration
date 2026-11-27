@@ -28,4 +28,4 @@ echo "SUMO : $(which sumo)"
 sumo --version
 
 
-python -u copy_bo_experiment_scripts.py --method turbo --initial_lengthscale 0.1 
+python -u turbo_experiment_script_2_copy.py --method turbo --initial_lengthscale 0.1 
